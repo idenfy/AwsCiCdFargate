@@ -1,0 +1,129 @@
+Metadata-Version: 2.1
+Name: aws-cdk.custom-resources
+Version: 1.15.0
+Summary: Constructs for implementing CDK custom resources
+Home-page: https://github.com/aws/aws-cdk
+Author: Amazon Web Services
+License: UNKNOWN
+Project-URL: Source, https://github.com/aws/aws-cdk.git
+Platform: UNKNOWN
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: jsii (~=0.19.0)
+Requires-Dist: publication (>=0.0.3)
+Requires-Dist: aws-cdk.aws-cloudformation (>=1.15.0,~=1.15)
+Requires-Dist: aws-cdk.aws-iam (>=1.15.0,~=1.15)
+Requires-Dist: aws-cdk.aws-lambda (>=1.15.0,~=1.15)
+Requires-Dist: aws-cdk.aws-sns (>=1.15.0,~=1.15)
+Requires-Dist: aws-cdk.core (>=1.15.0,~=1.15)
+
+## CDK Custom Resources
+
+<html></html>---
+
+
+![Stability: Experimental](https://img.shields.io/badge/stability-Experimental-important.svg?style=for-the-badge)
+
+> **This is a *developer preview* (public beta) module. Releases might lack important features and might have
+> future breaking changes.**
+>
+> This API is still under active development and subject to non-backward
+> compatible changes or removal in any future version. Use of the API is not recommended in production
+> environments. Experimental APIs are not subject to the Semantic Versioning model.
+
+---
+<html></html>
+
+This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aws-cdk) project.
+
+#### AWS Custom Resource
+
+Sometimes a single API call can fill the gap in the CloudFormation coverage. In
+this case you can use the `AwsCustomResource` construct. This construct creates
+a custom resource that can be customized to make specific API calls for the
+`CREATE`, `UPDATE` and `DELETE` events. Additionally, data returned by the API
+call can be extracted and used in other constructs/resources (creating a real
+CloudFormation dependency using `Fn::GetAtt` under the hood).
+
+The physical id of the custom resource can be specified or derived from the data
+returned by the API call.
+
+The `AwsCustomResource` uses the AWS SDK for JavaScript. Services, actions and
+parameters can be found in the [API documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/index.html).
+
+Path to data must be specified using a dot notation, e.g. to get the string value
+of the `Title` attribute for the first item returned by `dynamodb.query` it should
+be `Items.0.Title.S`.
+
+##### Examples
+
+Verify a domain with SES:
+
+```python
+# Example may have issues. See https://github.com/aws/jsii/issues/826
+verify_domain_identity = AwsCustomResource(self, "VerifyDomainIdentity",
+    on_create={
+        "service": "SES",
+        "action": "verifyDomainIdentity",
+        "parameters": {
+            "Domain": "example.com"
+        },
+        "physical_resource_id_path": "VerificationToken"
+    }
+)
+
+route53.TxtRecord(zone, "SESVerificationRecord",
+    record_name="_amazonses.example.com",
+    record_value=verify_domain_identity.get_data("VerificationToken")
+)
+```
+
+Get the latest version of a secure SSM parameter:
+
+```python
+# Example may have issues. See https://github.com/aws/jsii/issues/826
+get_parameter = AwsCustomResource(self, "GetParameter",
+    on_update={# will also be called for a CREATE event
+        "service": "SSM",
+        "action": "getParameter",
+        "parameters": {
+            "Name": "my-parameter",
+            "WithDecryption": True
+        },
+        "physical_resource_id": Date.now().to_string()}
+)
+
+# Use the value in another construct with
+get_parameter.get_data("Parameter.Value")
+```
+
+IAM policy statements required to make the API calls are derived from the calls
+and allow by default the actions to be made on all resources (`*`). You can
+restrict the permissions by specifying your own list of statements with the
+`policyStatements` prop.
+
+Chained API calls can be achieved by creating dependencies:
+
+```python
+# Example may have issues. See https://github.com/aws/jsii/issues/826
+aws_custom1 = AwsCustomResource(self, "API1",
+    on_create={
+        "service": "...",
+        "action": "...",
+        "physical_resource_id": "..."
+    }
+)
+
+aws_custom2 = AwsCustomResource(self, "API2",
+    on_create={
+        "service": "...",
+        "action": "...",
+        "parameters": {
+            "text": aws_custom1.get_data("Items.0.text")
+        },
+        "physical_resource_id": "..."
+    }
+)
+```
+
+

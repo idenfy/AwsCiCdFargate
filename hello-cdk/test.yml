@@ -1,0 +1,1073 @@
+Resources:
+  TaskTaskRoleE98524A1:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Task/TaskRole/Resource
+  Task79114B6B:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Essential: true
+          Image: python
+          Name: Container
+      Cpu: "256"
+      Family: MySubStackTask8C8A7CB0
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - TaskTaskRoleE98524A1
+          - Arn
+    Metadata:
+      aws:cdk:path: MySubStack/Task/Resource
+  ClusterEB0386A7:
+    Type: AWS::ECS::Cluster
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Resource
+  ClusterVpcFAA3CEDF:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/Resource
+  ClusterVpcPublicSubnet1SubnetA9F7E0A5:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/18
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PublicSubnet1
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet1/Subnet
+  ClusterVpcPublicSubnet1RouteTable5594A636:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet1/RouteTable
+  ClusterVpcPublicSubnet1RouteTableAssociation0FBEF1F4:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPublicSubnet1RouteTable5594A636
+      SubnetId:
+        Ref: ClusterVpcPublicSubnet1SubnetA9F7E0A5
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet1/RouteTableAssociation
+  ClusterVpcPublicSubnet1DefaultRoute62DA4B4B:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPublicSubnet1RouteTable5594A636
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: ClusterVpcIGW1E358A6E
+    DependsOn:
+      - ClusterVpcVPCGW47AC17E9
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet1/DefaultRoute
+  ClusterVpcPublicSubnet1EIP433C56EE:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet1/EIP
+  ClusterVpcPublicSubnet1NATGateway0693C346:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - ClusterVpcPublicSubnet1EIP433C56EE
+          - AllocationId
+      SubnetId:
+        Ref: ClusterVpcPublicSubnet1SubnetA9F7E0A5
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet1/NATGateway
+  ClusterVpcPublicSubnet2Subnet059113C4:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.64.0/18
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PublicSubnet2
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet2/Subnet
+  ClusterVpcPublicSubnet2RouteTable7B43F18C:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PublicSubnet2
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet2/RouteTable
+  ClusterVpcPublicSubnet2RouteTableAssociation8446B27D:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPublicSubnet2RouteTable7B43F18C
+      SubnetId:
+        Ref: ClusterVpcPublicSubnet2Subnet059113C4
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet2/RouteTableAssociation
+  ClusterVpcPublicSubnet2DefaultRoute97446C8A:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPublicSubnet2RouteTable7B43F18C
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: ClusterVpcIGW1E358A6E
+    DependsOn:
+      - ClusterVpcVPCGW47AC17E9
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet2/DefaultRoute
+  ClusterVpcPublicSubnet2EIP203DF3E5:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet2/EIP
+  ClusterVpcPublicSubnet2NATGateway00B24686:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - ClusterVpcPublicSubnet2EIP203DF3E5
+          - AllocationId
+      SubnetId:
+        Ref: ClusterVpcPublicSubnet2Subnet059113C4
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PublicSubnet2
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PublicSubnet2/NATGateway
+  ClusterVpcPrivateSubnet1SubnetA4EB481A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.128.0/18
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PrivateSubnet1
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet1/Subnet
+  ClusterVpcPrivateSubnet1RouteTable5AAEDA3F:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PrivateSubnet1
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet1/RouteTable
+  ClusterVpcPrivateSubnet1RouteTableAssociation9B8A88D9:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPrivateSubnet1RouteTable5AAEDA3F
+      SubnetId:
+        Ref: ClusterVpcPrivateSubnet1SubnetA4EB481A
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet1/RouteTableAssociation
+  ClusterVpcPrivateSubnet1DefaultRoute3B4D40DD:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPrivateSubnet1RouteTable5AAEDA3F
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: ClusterVpcPublicSubnet1NATGateway0693C346
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet1/DefaultRoute
+  ClusterVpcPrivateSubnet2SubnetBD1ECB6E:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.192.0/18
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PrivateSubnet2
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet2/Subnet
+  ClusterVpcPrivateSubnet2RouteTable73064A66:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc/PrivateSubnet2
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet2/RouteTable
+  ClusterVpcPrivateSubnet2RouteTableAssociationFB21349E:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPrivateSubnet2RouteTable73064A66
+      SubnetId:
+        Ref: ClusterVpcPrivateSubnet2SubnetBD1ECB6E
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet2/RouteTableAssociation
+  ClusterVpcPrivateSubnet2DefaultRoute011666AF:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: ClusterVpcPrivateSubnet2RouteTable73064A66
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: ClusterVpcPublicSubnet2NATGateway00B24686
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/PrivateSubnet2/DefaultRoute
+  ClusterVpcIGW1E358A6E:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MySubStack/Cluster/Vpc
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/IGW
+  ClusterVpcVPCGW47AC17E9:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+      InternetGatewayId:
+        Ref: ClusterVpcIGW1E358A6E
+    Metadata:
+      aws:cdk:path: MySubStack/Cluster/Vpc/VPCGW
+  FargateService7B4DE80D:
+    Type: AWS::ECS::Service
+    Properties:
+      TaskDefinition:
+        Ref: Task79114B6B
+      Cluster:
+        Ref: ClusterEB0386A7
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      DesiredCount: 1
+      EnableECSManagedTags: false
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::GetAtt:
+                - FargateSecurityGroup953082A8
+                - GroupId
+          Subnets:
+            - Ref: ClusterVpcPrivateSubnet1SubnetA4EB481A
+            - Ref: ClusterVpcPrivateSubnet2SubnetBD1ECB6E
+    Metadata:
+      aws:cdk:path: MySubStack/Fargate/Service
+  FargateSecurityGroup953082A8:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: MySubStack/Fargate/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: ClusterVpcFAA3CEDF
+    Metadata:
+      aws:cdk:path: MySubStack/Fargate/SecurityGroup/Resource
+  Repository22E53BBD:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: my_repository
+    Metadata:
+      aws:cdk:path: MySubStack/Repository/Resource
+  RepositoryMySubStackPipeline5D732CB8EventRuleC9BD59C7:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codecommit
+        resources:
+          - Fn::GetAtt:
+              - Repository22E53BBD
+              - Arn
+        detail-type:
+          - CodeCommit Repository State Change
+        detail:
+          event:
+            - referenceCreated
+            - referenceUpdated
+          referenceName:
+            - master
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::Join:
+              - ""
+              - - "arn:"
+                - Ref: AWS::Partition
+                - ":codepipeline:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":"
+                - Ref: PipelineC660917D
+          Id: Target0
+          RoleArn:
+            Fn::GetAtt:
+              - PipelineEventsRole46BEEA7C
+              - Arn
+    Metadata:
+      aws:cdk:path: MySubStack/Repository/MySubStackPipeline5D732CB8EventRule/Resource
+  ProjectRole4CCB274E:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Project/Role/Resource
+  ProjectRoleDefaultPolicy7F29461B:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codecommit:GitPull
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - Repository22E53BBD
+                - Arn
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: ProjectC78D97AD
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: ProjectC78D97AD
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PipelineArtifactsBucket22248F97
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PipelineArtifactsBucket22248F97
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineArtifactsBucketEncryptionKey01D58D69
+                - Arn
+          - Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineArtifactsBucketEncryptionKey01D58D69
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: ProjectRoleDefaultPolicy7F29461B
+      Roles:
+        - Ref: ProjectRole4CCB274E
+    Metadata:
+      aws:cdk:path: MySubStack/Project/Role/DefaultPolicy/Resource
+  ProjectC78D97AD:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:1.0
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - ProjectRole4CCB274E
+          - Arn
+      Source:
+        Location:
+          Fn::GetAtt:
+            - Repository22E53BBD
+            - CloneUrlHttp
+        Type: CODECOMMIT
+      EncryptionKey:
+        Fn::GetAtt:
+          - PipelineArtifactsBucketEncryptionKey01D58D69
+          - Arn
+    Metadata:
+      aws:cdk:path: MySubStack/Project/Resource
+  PipelineArtifactsBucketEncryptionKey01D58D69:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Statement:
+          - Action:
+              - kms:Create*
+              - kms:Describe*
+              - kms:Enable*
+              - kms:List*
+              - kms:Put*
+              - kms:Update*
+              - kms:Revoke*
+              - kms:Disable*
+              - kms:Get*
+              - kms:Delete*
+              - kms:ScheduleKeyDeletion
+              - kms:CancelKeyDeletion
+              - kms:GenerateDataKey
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - PipelineRoleD68726F7
+                  - Arn
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - PipelineSourceCommitCodePipelineActionRoleA78278D1
+                  - Arn
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - ProjectRole4CCB274E
+                  - Arn
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - ProjectRole4CCB274E
+                  - Arn
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - PipelineDeployCodePipelineActionRole8B83082E
+                  - Arn
+            Resource: "*"
+        Version: "2012-10-17"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/ArtifactsBucketEncryptionKey/Resource
+  PipelineArtifactsBucket22248F97:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID:
+                Fn::GetAtt:
+                  - PipelineArtifactsBucketEncryptionKey01D58D69
+                  - Arn
+              SSEAlgorithm: aws:kms
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/ArtifactsBucket/Resource
+  PipelineArtifactsBucketEncryptionKeyAlias5C510EEE:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/codepipeline-mysubstackpipeline5d732cb8
+      TargetKeyId:
+        Fn::GetAtt:
+          - PipelineArtifactsBucketEncryptionKey01D58D69
+          - Arn
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/ArtifactsBucketEncryptionKeyAlias/Resource
+  PipelineRoleD68726F7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Role/Resource
+  PipelineRoleDefaultPolicyC7A05455:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PipelineArtifactsBucket22248F97
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PipelineArtifactsBucket22248F97
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineArtifactsBucketEncryptionKey01D58D69
+                - Arn
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineSourceCommitCodePipelineActionRoleA78278D1
+                - Arn
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineBuildCodePipelineActionRoleD77A08E6
+                - Arn
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineDeployCodePipelineActionRole8B83082E
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PipelineRoleDefaultPolicyC7A05455
+      Roles:
+        - Ref: PipelineRoleD68726F7
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Role/DefaultPolicy/Resource
+  PipelineC660917D:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - PipelineRoleD68726F7
+          - Arn
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: "1"
+              Configuration:
+                RepositoryName:
+                  Fn::GetAtt:
+                    - Repository22E53BBD
+                    - Name
+                BranchName: master
+                PollForSourceChanges: false
+              Name: Commit
+              OutputArtifacts:
+                - Name: Artifact_Source_Commit
+              RoleArn:
+                Fn::GetAtt:
+                  - PipelineSourceCommitCodePipelineActionRoleA78278D1
+                  - Arn
+              RunOrder: 1
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: ProjectC78D97AD
+              InputArtifacts:
+                - Name: Artifact_Source_Commit
+              Name: Build
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RoleArn:
+                Fn::GetAtt:
+                  - PipelineBuildCodePipelineActionRoleD77A08E6
+                  - Arn
+              RunOrder: 1
+          Name: Build
+        - Actions:
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: "1"
+              Configuration:
+                ClusterName:
+                  Ref: ClusterEB0386A7
+                ServiceName:
+                  Fn::GetAtt:
+                    - FargateService7B4DE80D
+                    - Name
+              InputArtifacts:
+                - Name: BuildArtifact
+              Name: Deploy
+              RoleArn:
+                Fn::GetAtt:
+                  - PipelineDeployCodePipelineActionRole8B83082E
+                  - Arn
+              RunOrder: 1
+          Name: Deploy
+      ArtifactStore:
+        EncryptionKey:
+          Id:
+            Fn::GetAtt:
+              - PipelineArtifactsBucketEncryptionKey01D58D69
+              - Arn
+          Type: KMS
+        Location:
+          Ref: PipelineArtifactsBucket22248F97
+        Type: S3
+    DependsOn:
+      - PipelineRoleDefaultPolicyC7A05455
+      - PipelineRoleD68726F7
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Resource
+  PipelineSourceCommitCodePipelineActionRoleA78278D1:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Source/Commit/CodePipelineActionRole/Resource
+  PipelineSourceCommitCodePipelineActionRoleDefaultPolicyDF82B33D:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PipelineArtifactsBucket22248F97
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PipelineArtifactsBucket22248F97
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineArtifactsBucketEncryptionKey01D58D69
+                - Arn
+          - Action:
+              - codecommit:GetBranch
+              - codecommit:GetCommit
+              - codecommit:UploadArchive
+              - codecommit:GetUploadArchiveStatus
+              - codecommit:CancelUploadArchive
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - Repository22E53BBD
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PipelineSourceCommitCodePipelineActionRoleDefaultPolicyDF82B33D
+      Roles:
+        - Ref: PipelineSourceCommitCodePipelineActionRoleA78278D1
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Source/Commit/CodePipelineActionRole/DefaultPolicy/Resource
+  PipelineEventsRole46BEEA7C:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/EventsRole/Resource
+  PipelineEventsRoleDefaultPolicyFF4FCCE0:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codepipeline:StartPipelineExecution
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":codepipeline:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":"
+                  - Ref: PipelineC660917D
+        Version: "2012-10-17"
+      PolicyName: PipelineEventsRoleDefaultPolicyFF4FCCE0
+      Roles:
+        - Ref: PipelineEventsRole46BEEA7C
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/EventsRole/DefaultPolicy/Resource
+  PipelineBuildCodePipelineActionRoleD77A08E6:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Build/Build/CodePipelineActionRole/Resource
+  PipelineBuildCodePipelineActionRoleDefaultPolicyC9CB73F8:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ProjectC78D97AD
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PipelineBuildCodePipelineActionRoleDefaultPolicyC9CB73F8
+      Roles:
+        - Ref: PipelineBuildCodePipelineActionRoleD77A08E6
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Build/Build/CodePipelineActionRole/DefaultPolicy/Resource
+  PipelineDeployCodePipelineActionRole8B83082E:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Deploy/Deploy/CodePipelineActionRole/Resource
+  PipelineDeployCodePipelineActionRoleDefaultPolicyEE6D615B:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecs:DescribeServices
+              - ecs:DescribeTaskDefinition
+              - ecs:DescribeTasks
+              - ecs:ListTasks
+              - ecs:RegisterTaskDefinition
+              - ecs:UpdateService
+            Effect: Allow
+            Resource: "*"
+          - Action: iam:PassRole
+            Condition:
+              StringEqualsIfExists:
+                iam:PassedToService:
+                  - ec2.amazonaws.com
+                  - ecs-tasks.amazonaws.com
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PipelineArtifactsBucket22248F97
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PipelineArtifactsBucket22248F97
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PipelineArtifactsBucketEncryptionKey01D58D69
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PipelineDeployCodePipelineActionRoleDefaultPolicyEE6D615B
+      Roles:
+        - Ref: PipelineDeployCodePipelineActionRole8B83082E
+    Metadata:
+      aws:cdk:path: MySubStack/Pipeline/Deploy/Deploy/CodePipelineActionRole/DefaultPolicy/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.16.0,@aws-cdk/assets=1.18.0,@aws-cdk/aws-apigateway=1.18.0,@aws-cdk/aws-applicationautoscaling=1.18.0,@aws-cdk/aws-autoscaling=1.18.0,@aws-cdk/aws-autoscaling-common=1.18.0,@aws-cdk/aws-autoscaling-hooktargets=1.18.0,@aws-cdk/aws-certificatemanager=1.18.0,@aws-cdk/aws-cloudformation=1.18.0,@aws-cdk/aws-cloudfront=1.18.0,@aws-cdk/aws-cloudwatch=1.18.0,@aws-cdk/aws-codebuild=1.18.0,@aws-cdk/aws-codecommit=1.18.0,@aws-cdk/aws-codedeploy=1.18.0,@aws-cdk/aws-codepipeline=1.18.0,@aws-cdk/aws-codepipeline-actions=1.18.0,@aws-cdk/aws-ec2=1.18.0,@aws-cdk/aws-ecr=1.18.0,@aws-cdk/aws-ecr-assets=1.18.0,@aws-cdk/aws-ecs=1.18.0,@aws-cdk/aws-elasticloadbalancing=1.18.0,@aws-cdk/aws-elasticloadbalancingv2=1.18.0,@aws-cdk/aws-events=1.18.0,@aws-cdk/aws-events-targets=1.18.0,@aws-cdk/aws-iam=1.18.0,@aws-cdk/aws-kms=1.18.0,@aws-cdk/aws-lambda=1.18.0,@aws-cdk/aws-logs=1.18.0,@aws-cdk/aws-route53=1.18.0,@aws-cdk/aws-route53-targets=1.18.0,@aws-cdk/aws-s3=1.18.0,@aws-cdk/aws-s3-assets=1.18.0,@aws-cdk/aws-secretsmanager=1.18.0,@aws-cdk/aws-servicediscovery=1.18.0,@aws-cdk/aws-sns=1.18.0,@aws-cdk/aws-sns-subscriptions=1.18.0,@aws-cdk/aws-sqs=1.18.0,@aws-cdk/aws-ssm=1.18.0,@aws-cdk/aws-stepfunctions=1.18.0,@aws-cdk/core=1.18.0,@aws-cdk/cx-api=1.18.0,@aws-cdk/region-info=1.18.0,jsii-runtime=Python/3.6.8
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
