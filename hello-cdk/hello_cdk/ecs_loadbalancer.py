@@ -37,7 +37,7 @@ class Loadbalancing:
         (healthy) or not. Specify a list of http codes that your service can return and should be treated as healthy.
         """
         # By default a healthy http code is considered to be 200.
-        healthy_http_codes = healthy_http_codes or [200]
+        healthy_http_codes = ','.join(healthy_http_codes) if healthy_http_codes else '200'
 
         # If your service's task definition uses the awsvpc network mode
         # (which is required for the Fargate launch type), you must choose ip as the target type,
@@ -80,7 +80,7 @@ class Loadbalancing:
             vpc=vpc,
             protocol=aws_elasticloadbalancingv2.ApplicationProtocol.HTTP,
             target_type=self.target_type,
-            health_check=aws_elasticloadbalancingv2.HealthCheck()
+            health_check=aws_elasticloadbalancingv2.HealthCheck(healthy_http_codes=healthy_http_codes)
         )
 
         self.https_listener_1 = self.load_balancer.add_listener(
@@ -114,7 +114,7 @@ class Loadbalancing:
             vpc=vpc,
             protocol=aws_elasticloadbalancingv2.ApplicationProtocol.HTTP,
             target_type=self.target_type,
-            health_check=aws_elasticloadbalancingv2.HealthCheck()
+            health_check=aws_elasticloadbalancingv2.HealthCheck(healthy_http_codes=healthy_http_codes)
         )
 
         self.https_listener_2 = self.load_balancer.add_listener(
