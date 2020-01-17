@@ -1,10 +1,10 @@
-from aws_cdk import aws_ec2, core
-from .ecs_loadbalancer import Loadbalancing
-from .ecs_main import Ecs
-from .ecs_pipeline import EcsPipeline
-from .ecs_parameters import EcsParams
-from .load_balancer_parameters import LoadBalancerParams
-from .pipeline_parameters import PipelineParams
+from aws_cdk import aws_ec2
+from aws_fargate_sdk.source.ecs_loadbalancer import Loadbalancing
+from aws_fargate_sdk.source.ecs_main import Ecs
+from aws_fargate_sdk.source.ecs_pipeline import EcsPipeline
+from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
+from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
+from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
 
 
 class Main:
