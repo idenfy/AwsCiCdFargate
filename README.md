@@ -43,9 +43,9 @@ import jsii
 from aws_cdk import core, aws_iam, aws_ec2, aws_s3
 from aws_vpc.aws_cdk.vpc_template import VpcTemplate
 from aws_fargate_sdk.main import Main
-from aws_fargate_sdk.ecs_parameters import EcsParams
-from aws_fargate_sdk.load_balancer_parameters import LoadBalancerParams
-from aws_fargate_sdk.pipeline_parameters import PipelineParams
+from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
+from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
+from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
 
 @jsii.implements(core.IAspect)
 class Permissions:
