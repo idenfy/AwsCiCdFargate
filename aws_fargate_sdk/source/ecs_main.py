@@ -165,52 +165,39 @@ class Ecs:
         The task definition object specifies parameters about newly created containers.
         :return: Task definition object.
         """
-        environment_list = []
 
-        for key, value in self.environment.items():
-            join = ''.join(['{"name": "', key, '", "value": "', value, '"}'])
-            environment_list.append(join)
-
-        environment = '\n'.join([
-            '"environment": [',
-            ',\n'.join(environment_list),
-            '],'
-        ])
-
-        definition = '\n'.join([
-            '{',
-            ''.join(['    "executionRoleArn": ', '"', self.task.execution_role.role_arn, '"', ',']),
-            '    "containerDefinitions": [',
-            '        {',
-            '            "name": "{}",'.format(self.container_name),
-            '            "image": "<IMAGE1_NAME>",',
-            '            "essential": true,',
-            environment,
-            # For task definitions that use the awsvpc network mode, you should only specify the containerPort.
-            # The hostPort can be left blank or it must be the same value as the containerPort.
-            '            "portMappings": [',
-            '                {',
-            '                   "containerPort": {}'.format(self.container_port),
-            '                }',
-            '            ],',
-            '            "logConfiguration": {',
-            '                "logDriver": "awslogs",',
-            '                "options": {',
-            '                    "awslogs-group": "{}",'.format(self.log_group.log_group_name),
-            '                    "awslogs-region": "{}",'.format(self.aws_region),
-            '                    "awslogs-stream-prefix": "{}"'.format(self.prefix),
-            '                }',
-            '            }',
-            '        }',
-            '    ],',
-            '    "requiresCompatibilities": [',
-            '        "FARGATE"',
-            '    ],',
-            '    "networkMode": "awsvpc",',
-            '    "cpu": "{}",'.format(self.cpu),
-            '    "memory": "{}",'.format(self.ram),
-            '    "family": "{}"'.format(self.prefix.lower()),
-            '}'
-        ])
+        definition = {
+            'executionRoleArn': self.task.execution_role.role_arn,
+            'containerDefinitions': [
+                {
+                    'name': self.container_name,
+                    'image': "<IMAGE1_NAME>",
+                    'essential': True,
+                    'environment': [
+                        {'name': key, 'value': value} for key, value in self.environment.items()
+                    ],
+                    'portMappings': [
+                        {
+                            'containerPort': self.container_port
+                        }
+                    ],
+                    'logConfiguration': {
+                        'logDriver': 'awslogs',
+                        'options': {
+                            'awslogs-group': self.log_group.log_group_name,
+                            'awslogs-region': self.aws_region,
+                            'awslogs-stream-prefix': self.prefix
+                        }
+                    }
+                }
+            ],
+            'requiresCompatibilities': [
+                'FARGATE'
+            ],
+            'networkMode': 'awsvpc',
+            'cpu': str(self.cpu),
+            'memory': str(self.ram),
+            'family': self.prefix.lower()
+        }
 
         return definition

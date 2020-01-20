@@ -1,3 +1,5 @@
+import json
+
 from aws_cdk import aws_ecs, aws_codedeploy, aws_codecommit, aws_codepipeline, \
     aws_codepipeline_actions, aws_ecr, aws_elasticloadbalancingv2, aws_iam, aws_s3, aws_codebuild
 from aws_cdk.custom_resources import AwsCustomResource
@@ -72,7 +74,7 @@ class EcsPipeline:
         self.git_repository = aws_codecommit.Repository(
             scope, prefix + 'FargateEcsGitRepository',
             description='Repository containing appspec and taskdef files for ecs code-deploy blue/green deployments.',
-            repository_name=prefix.lower() + '_config'
+            repository_name=prefix.lower() + '-config'
         )
 
         self.commit_custom = AwsCustomResource(
@@ -88,7 +90,7 @@ class EcsPipeline:
                         {
                             'filePath': 'taskdef.json',
                             'fileMode': 'NORMAL',
-                            'fileContent': task_def,
+                            'fileContent': json.dumps(task_def, indent=4),
                         }, {
                             'filePath': 'appspec.yaml',
                             'fileMode': 'NORMAL',
