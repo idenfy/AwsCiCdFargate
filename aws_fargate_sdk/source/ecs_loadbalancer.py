@@ -22,7 +22,8 @@ class Loadbalancing:
             subnets: List[Subnet],
             vpc: Vpc,
             desired_domain_name: str,
-            healthy_http_codes: Optional[List[int]] = None
+            healthy_http_codes: Optional[List[int]] = None,
+            health_check_path: Optional[str] = None
     ):
         """
         Constructor.
@@ -41,8 +42,6 @@ class Loadbalancing:
         healthy_http_codes = [str(code) for code in healthy_http_codes] if healthy_http_codes else ['200']
         # By default a healthy http code is considered to be 200.
         healthy_http_codes = ','.join(healthy_http_codes)
-
-        self.health_check = aws_elasticloadbalancingv2.HealthCheck(healthy_http_codes=healthy_http_codes)
 
         # If your service's task definition uses the awsvpc network mode
         # (which is required for the Fargate launch type), you must choose ip as the target type,
@@ -64,8 +63,10 @@ class Loadbalancing:
             port=self.TARGET_GROUP_PORT,
             protocol='HTTP',
             vpc_id=vpc.vpc_id,
-            target_type=self.target_type
+            target_type=self.target_type,
+            health_check_path=health_check_path if health_check_path else '/'
         )
+
         self.target_group_2_http = aws_elasticloadbalancingv2.CfnTargetGroup(
             scope, prefix + 'FargateEcsTargetGroup2',
             name=prefix + 'FargateEcsTargetGroup2',
@@ -73,7 +74,8 @@ class Loadbalancing:
             port=self.TARGET_GROUP_PORT,
             protocol='HTTP',
             vpc_id=vpc.vpc_id,
-            target_type=self.target_type
+            target_type=self.target_type,
+            health_check_path=health_check_path if health_check_path else '/'
         )
 
         self.load_balancer = aws_elasticloadbalancingv2.CfnLoadBalancer(

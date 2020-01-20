@@ -41,7 +41,8 @@ class Main:
             lb_security_groups=lb_params.security_groups,
             vpc=vpc,
             desired_domain_name=lb_params.dns,
-            healthy_http_codes=lb_params.healthy_http_codes
+            healthy_http_codes=lb_params.healthy_http_codes,
+            health_check_path=lb_params.health_check_path
         )
 
         self.ecs = Ecs(
