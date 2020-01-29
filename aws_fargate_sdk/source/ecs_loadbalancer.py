@@ -58,7 +58,7 @@ class Loadbalancing:
 
         self.target_group_1_http = aws_elasticloadbalancingv2.CfnTargetGroup(
             scope, prefix + 'FargateEcsTargetGroup1',
-            name=prefix + 'FargateEcsTargetGroup1',
+            name=prefix + 'FargateEcsTG1',
             matcher=aws_elasticloadbalancingv2.CfnTargetGroup.MatcherProperty(http_code=healthy_http_codes),
             port=self.TARGET_GROUP_PORT,
             protocol='HTTP',
@@ -69,7 +69,7 @@ class Loadbalancing:
 
         self.target_group_2_http = aws_elasticloadbalancingv2.CfnTargetGroup(
             scope, prefix + 'FargateEcsTargetGroup2',
-            name=prefix + 'FargateEcsTargetGroup2',
+            name=prefix + 'FargateEcsTG2',
             matcher=aws_elasticloadbalancingv2.CfnTargetGroup.MatcherProperty(http_code=healthy_http_codes),
             port=self.TARGET_GROUP_PORT,
             protocol='HTTP',

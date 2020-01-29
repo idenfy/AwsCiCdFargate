@@ -80,7 +80,7 @@ class Ecs:
         )
         self.container = self.task.add_container(
             container_name,
-            image=aws_ecs.ContainerImage.from_registry('nginx:latest'),
+            image=aws_ecs.ContainerImage.from_registry('eexit/mirror-http-server:latest'),
             logging=aws_ecs.AwsLogDriver(stream_prefix=prefix, log_group=self.log_group)
         )
         self.container.add_port_mappings(aws_ecs.PortMapping(container_port=80))

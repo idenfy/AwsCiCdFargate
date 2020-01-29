@@ -322,7 +322,9 @@ class EcsPipeline:
             scope, prefix + 'FargateEcsCodeBuildProject',
             project_name=prefix + 'FargateEcsCodeBuildProject',
             environment_variables={
-                'REPOSITORY_URI': aws_codebuild.BuildEnvironmentVariable(value=self.ecr_repository.repository_uri)
+                'REPOSITORY_URI': aws_codebuild.BuildEnvironmentVariable(value=self.ecr_repository.repository_uri),
+                'PIPELINE_NAME': aws_codebuild.BuildEnvironmentVariable(value=self.pipeline.pipeline_name),
+                'REGION': aws_codebuild.BuildEnvironmentVariable(value=aws_region)
             },
             environment=aws_codebuild.BuildEnvironment(
                 build_image=aws_codebuild.LinuxBuildImage.UBUNTU_14_04_DOCKER_18_09_0,
@@ -334,7 +336,7 @@ class EcsPipeline:
                     'version': 0.2,
                     'phases': {
                         'pre_build': {
-                            'commands': f'$(aws ecr get-login --no-include-email --region {aws_region})'
+                            'commands': f'$(aws ecr get-login --no-include-email --region $REGION)'
                         },
                         'build': {
                             'commands': 'docker build -t $REPOSITORY_URI:latest .',
@@ -342,7 +344,7 @@ class EcsPipeline:
                         'post_build': {
                             'commands': [
                                 'docker push $REPOSITORY_URI:latest',
-                                f'aws codepipeline start-pipeline-execution --name {self.pipeline.pipeline_name}'
+                                f'aws codepipeline start-pipeline-execution --name $PIPELINE_NAME'
                             ]
                         },
                     }
