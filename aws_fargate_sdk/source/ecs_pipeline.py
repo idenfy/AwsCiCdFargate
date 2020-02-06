@@ -1,8 +1,21 @@
 import json
+import re
 
-from aws_cdk import aws_ecs, aws_codedeploy, aws_codecommit, aws_codepipeline, \
-    aws_codepipeline_actions, aws_ecr, aws_elasticloadbalancingv2, aws_iam, aws_s3, aws_codebuild
 from aws_cdk.custom_resources import AwsCustomResource
+from aws_empty_bucket.empty_s3_bucket import EmptyS3Bucket
+from aws_cdk import (
+    aws_ecs,
+    aws_codedeploy,
+    aws_codecommit,
+    aws_codepipeline,
+    aws_codepipeline_actions,
+    aws_ecr,
+    aws_elasticloadbalancingv2,
+    aws_iam,
+    aws_s3,
+    aws_codebuild,
+    core
+)
 
 
 class EcsPipeline:
@@ -12,14 +25,13 @@ class EcsPipeline:
 
     def __init__(
             self,
-            scope,
+            scope: core.Stack,
             prefix: str,
             aws_region: str,
             main_listener: aws_elasticloadbalancingv2.CfnListener,
             deployments_listener: aws_elasticloadbalancingv2.CfnListener,
             ecs_service: AwsCustomResource,
             ecs_cluster: aws_ecs.Cluster,
-            artifact_builds_s3: aws_s3.Bucket,
             task_def: str,
             app_spec: str,
     ):
@@ -32,10 +44,15 @@ class EcsPipeline:
         This listener is used for blue/green deployment.
         :param ecs_service: Ecs service to which create this pipeline.
         :param ecs_cluster: ECS cluster in which the ECS service is.
-        :param artifact_builds_s3: A S3 bucket to which built artifacts are written.
         :param task_def: Task definition object defining the parameters for a newly deployed container.
         :param app_spec: App specification object defining the ecs service modifications.
         """
+        self.artifacts_bucket = EmptyS3Bucket(
+            scope,
+            self.__convert(prefix + 'ArtifactsBucket'),
+            access_control=aws_s3.BucketAccessControl.PRIVATE,
+            bucket_name=self.__convert(prefix + 'ArtifactsBucket'),
+        )
 
         self.assume_principal = aws_iam.CompositePrincipal(
             aws_iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
@@ -256,7 +273,7 @@ class EcsPipeline:
 
         self.pipeline = aws_codepipeline.Pipeline(
             scope, prefix + 'FargateEcsPipeline',
-            artifact_bucket=artifact_builds_s3,
+            artifact_bucket=self.artifacts_bucket,
             pipeline_name=prefix + 'FargateEcsEcrPipeline',
             stages=[
                 aws_codepipeline.StageProps(
@@ -371,7 +388,7 @@ class EcsPipeline:
         self.second_pipieline = aws_codepipeline.Pipeline(
             scope, prefix + 'FargateEcsFirstPipeline',
             pipeline_name=prefix + 'FargateEcsCommitPipeline',
-            artifact_bucket=artifact_builds_s3,
+            artifact_bucket=self.artifacts_bucket,
             stages=[
                 aws_codepipeline.StageProps(
                     stage_name='SourceStage',
@@ -390,4 +407,11 @@ class EcsPipeline:
                 )
             ]
         )
-
+    @staticmethod
+    def __convert(name: str) -> str:
+        """
+        Converts CamelCase string to pascal-case where underscores are dashes.
+        This is required due to S3 not supporting capital letters or underscores.
+        """
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1-\2', name)
+        return re.sub('([a-z0-9])([A-Z])', r'\1-\2', s1).lower()

@@ -27,25 +27,22 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 Import the main file into your project and call the Main classes constructor in your own cdk stack.
 
-The parameters for the main class include your scope, project prefix, VPC, load balancer parameters, ecs parameters, pipeline parameters and aws region.
+The parameters for the main class include your scope, project prefix, VPC, load balancer parameters, ecs parameters and aws region.
 
 Load balancer paramaters include subnets, security groups, dns name for certificate and list of http codes to be considered healthy for health check.
 
 Ecs parameters include container name, container cpu, container ram, container port, container environment variables, security groups and subnets for your service.
 
-Pipeline parameters include S3 bucket to store pipeline artifacts.
-
 Read more on all parameters in their corresponding class docstrings.
 
 Your code should look something like this:
-```
+```python
 import jsii
-from aws_cdk import core, aws_iam, aws_ec2, aws_s3
+from aws_cdk import core, aws_iam, aws_ec2
 from aws_vpc.aws_cdk.vpc_template import VpcTemplate
 from aws_fargate_sdk.main import Main
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
 from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
-from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
 
 @jsii.implements(core.IAspect)
 class Permissions:
@@ -94,12 +91,10 @@ class AwsCdkStack(core.Stack):
         pub_subnets = vpc.public_subnets
         pri_subnets = vpc.private_subnets
 
-        bucket = aws_s3.Bucket(self, 'FargateEcsDeploymentArtifactBucket')
         ecs_params = EcsParams('FargateEcsContainer', '256', '512', 80, {}, ecs_security_groups=groups, ecs_subnets=pri_subnets)
         load_params = LoadBalancerParams(pub_subnets, groups, 'myweb.com')
-        pipeline_params = PipelineParams(bucket)
 
-        self.main = Main(self, 'ProjectPrefix', vpc, load_params, ecs_params, pipeline_params, 'your-preferred-aws-region')
+        self.main = Main(self, 'ProjectPrefix', vpc, load_params, ecs_params, 'your-preferred-aws-region')
 ```
 Notes:
 1. In the example we use the aws-vpc python package to create the VPC, but you can use any VPC object.

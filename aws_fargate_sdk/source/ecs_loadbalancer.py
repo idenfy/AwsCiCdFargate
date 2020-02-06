@@ -1,5 +1,4 @@
 from typing import List, Optional
-
 from aws_cdk import aws_certificatemanager, aws_elasticloadbalancingv2, core
 from aws_cdk.aws_ec2 import SecurityGroup, Subnet, Vpc
 

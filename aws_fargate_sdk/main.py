@@ -4,7 +4,6 @@ from aws_fargate_sdk.source.ecs_main import Ecs
 from aws_fargate_sdk.source.ecs_pipeline import EcsPipeline
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
 from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
-from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
 
 
 class Main:
@@ -21,7 +20,6 @@ class Main:
             vpc: aws_ec2.Vpc,
             lb_params: LoadBalancerParams,
             ecs_params: EcsParams,
-            pipeline_params: PipelineParams,
             region: str,
     ) -> None:
         """
@@ -67,7 +65,6 @@ class Main:
             deployments_listener=self.load_balancing.listener_https_2,
             ecs_service=self.ecs.service,
             ecs_cluster=self.ecs.cluster,
-            artifact_builds_s3=pipeline_params.artifact_builds_bucket,
             task_def=self.ecs.create_task_def(),
             app_spec=self.ecs.create_appspec(),
             aws_region=region,
