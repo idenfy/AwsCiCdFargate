@@ -1,7 +1,11 @@
+import json
+
 from typing import List, Dict, Any
 from aws_cdk import aws_logs, aws_ecs, aws_applicationautoscaling, aws_ec2, aws_iam
 from aws_cdk.aws_ec2 import SecurityGroup, Subnet
-from .ecs_loadbalancer import Loadbalancing
+from aws_cdk.core import Stack, RemovalPolicy
+
+from aws_fargate_sdk.source.lb_listener_config import LbListenerConfig
 
 
 class Ecs:
@@ -10,31 +14,40 @@ class Ecs:
     """
     def __init__(
             self,
-            scope,
+            scope: Stack,
             prefix: str,
-            aws_region: str,
             cpu: str,
             ram: str,
+            cpu_threshold: int,
             environment: Dict[str, Any],
             container_name: str,
             container_port: int,
             security_groups: List[SecurityGroup],
             subnets: List[Subnet],
-            loadbalancing: Loadbalancing,
+            lb_listener_config: LbListenerConfig,
             vpc: aws_ec2.Vpc
     ) -> None:
         """
         Constructor.
+
+        :param scope: A CloudFormation template to which add resources.
         :param prefix: A prefix for newly created resources.
-        :param aws_region: A region in which resources are put.
         :param cpu: Cpu points for the deployed container. 1 CPU = 1024 Cpu points.
         :param ram: Memory for the deployed container. 1 GB Ram = 1024.
+        :param cpu_threshold: Measured in percent. 0-100 percent. This value indicates when an autoscaling should
+        kick in. If an average containers' cpu utilization is below this threshold, the amount of servers should be
+        decreased. On the contrary, if an average containers' cpu utilization is above this threshold, the amount
+        of servers will be increased.
+        :param environment: A containers environment. Usually used for configuration an passing passwords.
         :param container_name: The name that will be given to a newly deployed container.
-        created container will be associated with this group.
+        :param container_port: A port through which ECS service can communicate.
+        :param security_groups: Security groups for the ECS service.
+        :param subnets: Subnets to deploy containers.
+        :param loadbalancing: Loadbalancing manager to add loadbalancing to ecs.
+        :param vpc: Virtual Private Cloud in which loadbalancer and other instances are/will be located.
         """
-
         self.prefix = prefix
-        self.aws_region = aws_region
+        self.aws_region = scope.region
         self.environment = environment
         self.cpu = cpu
         self.ram = ram
@@ -42,10 +55,10 @@ class Ecs:
         self.container_port = container_port
 
         self.task_execution_role = aws_iam.Role(
-            scope, prefix + 'FargateEcsTaskExecutionRole',
+            scope, prefix + 'FargateTaskExecutionRole',
             path='/',
             inline_policies={
-                prefix + 'FargateEcsTaskExecutionPolicy': aws_iam.PolicyDocument(
+                prefix + 'FargateTaskExecutionPolicy': aws_iam.PolicyDocument(
                     statements=[aws_iam.PolicyStatement(
                         actions=[
                             "ecr:GetAuthorizationToken",
@@ -64,20 +77,22 @@ class Ecs:
 
         self.log_group = aws_logs.LogGroup(
             scope, prefix + 'FargateEcsLogGroup',
-            log_group_name=f'/aws/ecs/fargate/{prefix}'
+            log_group_name=f'/aws/ecs/fargate/{prefix}',
+            removal_policy=RemovalPolicy.DESTROY
         )
 
         self.cluster = aws_ecs.Cluster(
-            scope, prefix + 'FargateEcsCluster',
-            cluster_name=prefix + 'FargateEcsCluster',
+            scope, prefix + 'FargateCluster',
+            cluster_name=prefix + 'FargateCluster',
             vpc=vpc
         )
 
         self.task = aws_ecs.FargateTaskDefinition(
-            scope, prefix + 'FargateEcsTaskDefinition',
+            scope, prefix + 'FargateTaskDefinition',
             cpu=int(cpu), memory_limit_mib=int(ram), family=prefix.lower(),
             execution_role=self.task_execution_role
         )
+
         self.container = self.task.add_container(
             container_name,
             image=aws_ecs.ContainerImage.from_registry('eexit/mirror-http-server:latest'),
@@ -86,15 +101,15 @@ class Ecs:
         self.container.add_port_mappings(aws_ecs.PortMapping(container_port=80))
 
         self.service = aws_ecs.CfnService(
-            scope, prefix + 'FargateEcsService',
+            scope, prefix + 'FargateService',
             cluster=self.cluster.cluster_arn,
-            service_name=prefix + 'FargateEcsService',
+            service_name=prefix + 'FargateService',
             task_definition=self.task.task_definition_arn,
             load_balancers=[
                 aws_ecs.CfnService.LoadBalancerProperty(
                     container_name=container_name,
                     container_port=container_port,
-                    target_group_arn=loadbalancing.target_group_1_http.ref
+                    target_group_arn=lb_listener_config.production_target_group.ref
                 )
             ],
             desired_count=1,
@@ -111,38 +126,34 @@ class Ecs:
             launch_type="FARGATE"
         )
 
-        self.service.node.add_dependency(loadbalancing.load_balancer)
-        self.service.node.add_dependency(loadbalancing.target_group_1_http)
-        self.service.node.add_dependency(loadbalancing.target_group_2_http)
-        self.service.node.add_dependency(loadbalancing.listener_http_1)
-        self.service.node.add_dependency(loadbalancing.listener_http_2)
-        self.service.node.add_dependency(loadbalancing.listener_https_1)
-        self.service.node.add_dependency(loadbalancing.listener_https_2)
+        self.service.node.add_dependency(lb_listener_config.production_target_group)
+        self.service.node.add_dependency(lb_listener_config.deployment_target_group)
 
         self.scalable_target = aws_applicationautoscaling.ScalableTarget(
-            scope, prefix + 'FargateEcsScalableTarget',
+            scope, prefix + 'FargateScalableTarget',
             min_capacity=1,
             max_capacity=5,
             service_namespace=aws_applicationautoscaling.ServiceNamespace.ECS,
-            resource_id='/'.join(['service', self.cluster.cluster_name, prefix + 'FargateEcsService']),
+            resource_id='/'.join(['service', self.cluster.cluster_name, prefix + 'FargateService']),
             scalable_dimension='ecs:service:DesiredCount'
         )
 
         self.scalable_target.node.add_dependency(self.service)
 
         self.scaling_policy = aws_applicationautoscaling.TargetTrackingScalingPolicy(
-            scope, prefix + 'FargateEcsScalingPolicy',
-            policy_name=prefix + 'FargateEcsScalingPolicy',
+            scope, prefix + 'FargateScalingPolicy',
+            policy_name=prefix + 'FargateScalingPolicy',
             scaling_target=self.scalable_target,
-            target_value=75.0,
+            target_value=cpu_threshold,
             predefined_metric=aws_applicationautoscaling.PredefinedMetric.ECS_SERVICE_AVERAGE_CPU_UTILIZATION,
             disable_scale_in=False
         )
 
-    def create_appspec(self):
+    def create_appspec(self) -> str:
         """
         Creates an application specification object which will be used for deploying new containers through a pipeline.
         The application specification object specifies parameters about the ECS service.
+
         :return: Application specification object.
         """
         app_spec = (
@@ -159,13 +170,13 @@ class Ecs:
 
         return '\n'.join(app_spec)
 
-    def create_task_def(self):
+    def create_task_def(self) -> str:
         """
         Creates a task definition object which will be used for deploying new containers through a pipeline.
         The task definition object specifies parameters about newly created containers.
+
         :return: Task definition object.
         """
-
         definition = {
             'executionRoleArn': self.task.execution_role.role_arn,
             'containerDefinitions': [
@@ -200,4 +211,4 @@ class Ecs:
             'family': self.prefix.lower()
         }
 
-        return definition
+        return json.dumps(definition, indent=4)

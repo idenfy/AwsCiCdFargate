@@ -1,18 +1,16 @@
 from aws_cdk import aws_ec2
-from aws_fargate_sdk.source.ecs_loadbalancer import Loadbalancing
+from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
 from aws_fargate_sdk.source.ecs_main import Ecs
 from aws_fargate_sdk.source.ecs_pipeline import EcsPipeline
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
 from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
+from aws_fargate_sdk.source.lb_listener_config import LbListenerConfig
 
 
-class Main:
-    TARGET_GROUP_PORT = 80
-    LISTENER_HTTP_PORT_1 = 80
-    LISTENER_HTTPS_PORT_1 = 443
-    LISTENER_HTTP_PORT_2 = 8000
-    LISTENER_HTTPS_PORT_2 = 44300
-
+class EcsFargateWithCiCd:
+    """
+    Creates a whole infrastructure around ECS Fargate service and blue/green CI/CD deployments.
+    """
     def __init__(
             self,
             scope,
@@ -20,7 +18,7 @@ class Main:
             vpc: aws_ec2.Vpc,
             lb_params: LoadBalancerParams,
             ecs_params: EcsParams,
-            region: str,
+            lb_listener_params: LbListenerParameters
     ) -> None:
         """
         Constructor.
@@ -29,16 +27,13 @@ class Main:
         :param vpc: Virtual private cloud (VPC).
         :param lb_params: Loadbalancer parameters.
         :param ecs_params: Compute power parameters for newly deployed container.
-        :param pipeline_params: Parameters for a ci/cd pipeline.
         """
 
-        self.load_balancing = Loadbalancing(
+        self.lb_listener_config = LbListenerConfig(
             scope,
             prefix=prefix,
-            subnets=lb_params.lb_subnets,
-            lb_security_groups=lb_params.security_groups,
             vpc=vpc,
-            desired_domain_name=lb_params.dns,
+            listener_params=lb_listener_params,
             healthy_http_codes=lb_params.healthy_http_codes,
             health_check_path=lb_params.health_check_path
         )
@@ -49,23 +44,22 @@ class Main:
             environment=ecs_params.container_environment,
             cpu=ecs_params.container_cpu,
             ram=ecs_params.container_ram,
+            cpu_threshold=ecs_params.cpu_threshold,
             container_name=ecs_params.container_name,
             container_port=ecs_params.container_port,
-            loadbalancing=self.load_balancing,
             security_groups=ecs_params.ecs_security_groups,
             subnets=ecs_params.ecs_subnets,
-            aws_region=region,
+            lb_listener_config=self.lb_listener_config,
             vpc=vpc
         )
 
         self.pipeline = EcsPipeline(
             scope,
             prefix=prefix,
-            main_listener=self.load_balancing.listener_https_1,
-            deployments_listener=self.load_balancing.listener_https_2,
+            main_listener=lb_listener_params.production_listener,
+            deployments_listener=lb_listener_params.deployment_listener,
             ecs_service=self.ecs.service,
             ecs_cluster=self.ecs.cluster,
             task_def=self.ecs.create_task_def(),
             app_spec=self.ecs.create_appspec(),
-            aws_region=region,
         )
