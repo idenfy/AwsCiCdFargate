@@ -36,8 +36,6 @@ class DeploymentConfig:
         """
         Creates a custom resource to manage an ecs deployment configuration.
 
-        :param scope: A scope in which this resource should be created.
-
         :return: Custom resource to manage an ecs deployment configuration.
         """
         return AwsCustomResource(

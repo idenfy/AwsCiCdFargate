@@ -5,8 +5,6 @@ from aws_cdk import aws_logs, aws_ecs, aws_applicationautoscaling, aws_ec2, aws_
 from aws_cdk.aws_ec2 import SecurityGroup, Subnet
 from aws_cdk.core import Stack, RemovalPolicy
 
-from aws_fargate_sdk.source.lb_listener_config import LbListenerConfig
-
 
 class Ecs:
     """
@@ -24,7 +22,8 @@ class Ecs:
             container_port: int,
             security_groups: List[SecurityGroup],
             subnets: List[Subnet],
-            lb_listener_config: LbListenerConfig,
+            production_target_group,
+            deployment_target_group,
             vpc: aws_ec2.Vpc
     ) -> None:
         """
@@ -43,7 +42,6 @@ class Ecs:
         :param container_port: A port through which ECS service can communicate.
         :param security_groups: Security groups for the ECS service.
         :param subnets: Subnets to deploy containers.
-        :param loadbalancing: Loadbalancing manager to add loadbalancing to ecs.
         :param vpc: Virtual Private Cloud in which loadbalancer and other instances are/will be located.
         """
         self.prefix = prefix
@@ -109,7 +107,7 @@ class Ecs:
                 aws_ecs.CfnService.LoadBalancerProperty(
                     container_name=container_name,
                     container_port=container_port,
-                    target_group_arn=lb_listener_config.production_target_group.ref
+                    target_group_arn=production_target_group.ref
                 )
             ],
             desired_count=1,
@@ -126,8 +124,8 @@ class Ecs:
             launch_type="FARGATE"
         )
 
-        self.service.node.add_dependency(lb_listener_config.production_target_group)
-        self.service.node.add_dependency(lb_listener_config.deployment_target_group)
+        self.service.node.add_dependency(production_target_group)
+        self.service.node.add_dependency(deployment_target_group)
 
         self.scalable_target = aws_applicationautoscaling.ScalableTarget(
             scope, prefix + 'FargateScalableTarget',
