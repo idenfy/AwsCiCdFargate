@@ -158,7 +158,7 @@ class DeploymentGroup:
             "action": "createDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateEcsDeploymentGroup',
+                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
                 'deploymentConfigName': 'CodeDeployDefault.ECSAllAtOnce',
                 'serviceRoleArn': self.__deployment_group_role.role_arn,
                 'autoRollbackConfiguration': {
@@ -223,7 +223,7 @@ class DeploymentGroup:
             "action": "updateDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateEcsDeploymentGroup',
+                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
                 'deploymentConfigName': 'CodeDeployDefault.ECSAllAtOnce',
                 'serviceRoleArn': self.__deployment_group_role.role_arn,
                 'autoRollbackConfiguration': {
@@ -288,7 +288,7 @@ class DeploymentGroup:
             "action": "deleteDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateEcsDeploymentGroup',
+                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
             },
             "physical_resource_id": self.__prefix + 'DeleteDeploymentGroup',
         }

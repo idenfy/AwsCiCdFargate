@@ -18,10 +18,10 @@ class PipelineEcrToEcs:
             app_spec: str,
             main_listener: aws_elasticloadbalancingv2.CfnListener,
             deployments_listener: aws_elasticloadbalancingv2.CfnListener,
-            production_target_group,
-            deployment_target_group,
             ecs_cluster: aws_ecs.Cluster,
-            ecs_service: CfnService
+            ecs_service: CfnService,
+            production_target_group,
+            deployment_target_group
     ):
         self.application = aws_codedeploy.EcsApplication(
             scope, prefix + 'FargateCodeDeployApplication',
@@ -37,10 +37,10 @@ class PipelineEcrToEcs:
             ecs_application=self.application,
             main_listener=main_listener,
             deployments_listener=deployments_listener,
-            production_target_group=production_target_group,
-            deployment_target_group=deployment_target_group,
             ecs_cluster=ecs_cluster,
             ecs_service=ecs_service,
+            production_target_group=production_target_group,
+            deployment_target_group=deployment_target_group
         ).get_resource()
 
         self.deployment_group_custom.node.add_dependency(ecs_service)
