@@ -209,7 +209,7 @@ class DeploymentGroup:
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'CreateDeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeploymentGroup',
         }
 
     def __on_update(self) -> Optional[Dict[Any, Any]]:
@@ -274,7 +274,7 @@ class DeploymentGroup:
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'UpdateDeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeploymentGroup',
         }
 
     def __on_delete(self) -> Optional[Dict[Any, Any]]:
@@ -290,5 +290,5 @@ class DeploymentGroup:
                 'applicationName': self.__ecs_application.application_name,
                 'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
             },
-            "physical_resource_id": self.__prefix + 'DeleteDeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeploymentGroup',
         }
