@@ -22,7 +22,10 @@ class DeploymentGroup:
             ecs_application: EcsApplication,
             main_listener: CfnListener,
             deployments_listener: CfnListener,
+            production_target_group,
+            deployment_target_group,
             ecs_cluster: Cluster,
+            ecs_service
     ) -> None:
         """
         Constructor.
@@ -45,7 +48,10 @@ class DeploymentGroup:
         self.__ecs_application = ecs_application
         self.__main_listener = main_listener
         self.__deployments_listener = deployments_listener
+        self.__production_target_group = production_target_group
+        self.__deployment_target_group = deployment_target_group
         self.__ecs_cluster = ecs_cluster
+        self.__ecs_service = ecs_service
 
         self.__custom_resource_role = Role(
             self.__stack,
@@ -152,7 +158,7 @@ class DeploymentGroup:
             "action": "createDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateEcsDeploymentGroup',
+                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
                 'deploymentConfigName': 'CodeDeployDefault.ECSAllAtOnce',
                 'serviceRoleArn': self.__deployment_group_role.role_arn,
                 'autoRollbackConfiguration': {
@@ -177,10 +183,10 @@ class DeploymentGroup:
                         {
                             'targetGroups': [
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup1',
+                                    'name': self.__production_target_group.attr_target_group_name,
                                 },
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup2',
+                                    'name': self.__deployment_target_group.attr_target_group_name,
                                 },
                             ],
                             'prodTrafficRoute': {
@@ -198,12 +204,12 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__prefix + 'FargateEcsService',
+                        'serviceName': self.__ecs_service.service_name,
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'CreateDeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeploymentGroup',
         }
 
     def __on_update(self) -> Optional[Dict[Any, Any]]:
@@ -217,7 +223,7 @@ class DeploymentGroup:
             "action": "updateDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateEcsDeploymentGroup',
+                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
                 'deploymentConfigName': 'CodeDeployDefault.ECSAllAtOnce',
                 'serviceRoleArn': self.__deployment_group_role.role_arn,
                 'autoRollbackConfiguration': {
@@ -242,10 +248,10 @@ class DeploymentGroup:
                         {
                             'targetGroups': [
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup1',
+                                    'name': self.__production_target_group.attr_target_group_name,
                                 },
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup2',
+                                    'name': self.__deployment_target_group.attr_target_group_name,
                                 },
                             ],
                             'prodTrafficRoute': {
@@ -263,12 +269,12 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__prefix + 'FargateEcsService',
+                        'serviceName': self.__ecs_service.service_name,
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'UpdateDeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeploymentGroup',
         }
 
     def __on_delete(self) -> Optional[Dict[Any, Any]]:
@@ -282,7 +288,7 @@ class DeploymentGroup:
             "action": "deleteDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateEcsDeploymentGroup',
+                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
             },
-            "physical_resource_id": self.__prefix + 'DeleteDeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeploymentGroup',
         }

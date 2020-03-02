@@ -28,12 +28,15 @@ class EcsPipeline:
             ecs_cluster: aws_ecs.Cluster,
             task_def: str,
             app_spec: str,
+            production_target_group,
+            deployment_target_group
     ) -> None:
         """
         Constructor.
 
         :param scope: A CloudFormation template to which add resources.
         :param prefix: A prefix for newly created resources.
+        :param aws_region: Region in which the CF stack is running.
         :param main_listener: A listener which receives incoming traffic and forwards it to a target group.
         :param deployments_listener: A listener which receives incoming traffic and forwards it to a target group.
         This listener is used for blue/green deployment.
@@ -71,7 +74,9 @@ class EcsPipeline:
             main_listener=main_listener,
             deployments_listener=deployments_listener,
             ecs_cluster=ecs_cluster,
-            ecs_service=ecs_service
+            ecs_service=ecs_service,
+            production_target_group=production_target_group,
+            deployment_target_group=deployment_target_group
         )
 
         self.commit_to_ecr = PipelineCommitToEcr(
