@@ -26,6 +26,8 @@ class EcsPipeline:
             deployments_listener: aws_elasticloadbalancingv2.CfnListener,
             ecs_service: AwsCustomResource,
             ecs_cluster: aws_ecs.Cluster,
+            production_target_group,
+            deployment_target_group,
             task_def: str,
             app_spec: str,
     ) -> None:
@@ -70,6 +72,8 @@ class EcsPipeline:
             app_spec=app_spec,
             main_listener=main_listener,
             deployments_listener=deployments_listener,
+            production_target_group=production_target_group,
+            deployment_target_group=deployment_target_group,
             ecs_cluster=ecs_cluster,
             ecs_service=ecs_service
         )

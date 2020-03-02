@@ -47,6 +47,8 @@ class EcsFargateWithCiCd:
             prefix=prefix,
             main_listener=production_listener,
             deployments_listener=deployment_listener,
+            production_target_group=production_target_group,
+            deployment_target_group=deployment_target_group,
             ecs_service=self.ecs.service,
             ecs_cluster=self.ecs.cluster,
             task_def=self.ecs.create_task_def(),

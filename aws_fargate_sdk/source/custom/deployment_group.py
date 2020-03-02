@@ -22,7 +22,10 @@ class DeploymentGroup:
             ecs_application: EcsApplication,
             main_listener: CfnListener,
             deployments_listener: CfnListener,
+            production_target_group,
+            deployment_target_group,
             ecs_cluster: Cluster,
+            ecs_service
     ) -> None:
         """
         Constructor.
@@ -45,7 +48,10 @@ class DeploymentGroup:
         self.__ecs_application = ecs_application
         self.__main_listener = main_listener
         self.__deployments_listener = deployments_listener
+        self.__production_target_group = production_target_group
+        self.__deployment_target_group = deployment_target_group
         self.__ecs_cluster = ecs_cluster
+        self.__ecs_service = ecs_service
 
         self.__custom_resource_role = Role(
             self.__stack,
@@ -177,10 +183,10 @@ class DeploymentGroup:
                         {
                             'targetGroups': [
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup1',
+                                    'name': self.__production_target_group.attr_target_group_name,
                                 },
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup2',
+                                    'name': self.__deployment_target_group.attr_target_group_name,
                                 },
                             ],
                             'prodTrafficRoute': {
@@ -198,7 +204,7 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__prefix + 'FargateEcsService',
+                        'serviceName': self.__ecs_service.service_name,
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
@@ -242,10 +248,10 @@ class DeploymentGroup:
                         {
                             'targetGroups': [
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup1',
+                                    'name': self.__production_target_group.attr_target_group_name,
                                 },
                                 {
-                                    'name': self.__prefix + 'FargateEcsTargetGroup2',
+                                    'name': self.__deployment_target_group.attr_target_group_name,
                                 },
                             ],
                             'prodTrafficRoute': {
@@ -263,7 +269,7 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__prefix + 'FargateEcsService',
+                        'serviceName': self.__ecs_service.service_name,
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
