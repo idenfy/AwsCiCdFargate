@@ -36,7 +36,6 @@ class EcsPipeline:
 
         :param scope: A CloudFormation template to which add resources.
         :param prefix: A prefix for newly created resources.
-        :param aws_region: Region in which the CF stack is running.
         :param main_listener: A listener which receives incoming traffic and forwards it to a target group.
         :param deployments_listener: A listener which receives incoming traffic and forwards it to a target group.
         This listener is used for blue/green deployment.
