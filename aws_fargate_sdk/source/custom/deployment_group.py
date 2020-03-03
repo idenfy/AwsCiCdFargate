@@ -223,7 +223,7 @@ class DeploymentGroup:
             "action": "updateDeploymentGroup",
             "parameters": {
                 'applicationName': self.__ecs_application.application_name,
-                'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
+                'currentDeploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
                 'deploymentConfigName': 'CodeDeployDefault.ECSAllAtOnce',
                 'serviceRoleArn': self.__deployment_group_role.role_arn,
                 'autoRollbackConfiguration': {
