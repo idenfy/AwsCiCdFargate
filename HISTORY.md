@@ -1,5 +1,9 @@
 # Release history
 
+#### 3.1.0
+Create custom resource to create ecs service. With deployment controller CODE_DEPLOY you
+can not do CF updates.
+
 #### 3.0.2
 Minor bug fix.
 
