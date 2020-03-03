@@ -1,7 +1,7 @@
 import json
 
 from typing import List, Dict, Any
-from aws_cdk import aws_logs, aws_ecs, aws_applicationautoscaling, aws_ec2, aws_iam
+from aws_cdk import aws_logs, aws_ecs, aws_applicationautoscaling, aws_ec2, aws_iam,  custom_resources
 from aws_cdk.aws_ec2 import SecurityGroup, Subnet
 from aws_cdk.core import Stack, RemovalPolicy
 
@@ -43,7 +43,6 @@ class Ecs:
         :param container_port: A port through which ECS service can communicate.
         :param security_groups: Security groups for the ECS service.
         :param subnets: Subnets to deploy containers.
-        :param loadbalancing: Loadbalancing manager to add loadbalancing to ecs.
         :param vpc: Virtual Private Cloud in which loadbalancer and other instances are/will be located.
         """
         self.prefix = prefix
@@ -100,30 +99,47 @@ class Ecs:
         )
         self.container.add_port_mappings(aws_ecs.PortMapping(container_port=80))
 
-        self.service = aws_ecs.CfnService(
+        self.service = custom_resources.AwsCustomResource(
             scope, prefix + 'FargateService',
-            cluster=self.cluster.cluster_arn,
-            service_name=prefix + 'FargateService',
-            task_definition=self.task.task_definition_arn,
-            load_balancers=[
-                aws_ecs.CfnService.LoadBalancerProperty(
-                    container_name=container_name,
-                    container_port=container_port,
-                    target_group_arn=lb_listener_config.production_target_group.ref
-                )
-            ],
-            desired_count=1,
-            network_configuration=aws_ecs.CfnService.NetworkConfigurationProperty(
-                awsvpc_configuration=aws_ecs.CfnService.AwsVpcConfigurationProperty(
-                    assign_public_ip="DISABLED",
-                    security_groups=[sub.security_group_id for sub in security_groups],
-                    subnets=[sub.subnet_id for sub in subnets],
-                )
-            ),
-            deployment_controller=aws_ecs.CfnService.DeploymentControllerProperty(
-                type="CODE_DEPLOY"
-            ),
-            launch_type="FARGATE"
+            on_create={
+                "service": 'ECS',
+                "action": 'createService',
+                "physical_resource_id": self.prefix + 'FargateServiceCustom',
+                'parameters': {
+                    'cluster': self.cluster.cluster_arn,
+                    'serviceName': prefix + 'FargateService',
+                    'taskDefinition': self.task.task_definition_arn,
+                    'loadBalancers': [
+                        {
+                            'containerName': container_name,
+                            'containerPort': container_port,
+                            'targetGroupArn': lb_listener_config.production_target_group.ref
+                        }
+                    ],
+                    'desiredCount': 1,
+                    'networkConfiguration': {
+                        'awsvpcConfiguration': {
+                            'assignPublicIp': 'DISABLED',
+                            'securityGroups': [sub.security_group_id for sub in security_groups],
+                            'subnets': [sub.subnet_id for sub in subnets],
+                        }
+                    },
+                    'deploymentController': {
+                        'type': 'CODE_DEPLOY'
+                    },
+                    'launchType': 'FARGATE'
+                }
+            },
+            on_delete={
+                "service": 'ECS',
+                "action": 'deleteService',
+                "physical_resource_id": self.prefix + 'FargateServiceCustom',
+                'parameters': {
+                    'cluster': self.cluster.cluster_arn,
+                    'service': prefix + 'FargateService',
+                    'force': True
+                }
+            }
         )
 
         self.service.node.add_dependency(lb_listener_config.production_target_group)

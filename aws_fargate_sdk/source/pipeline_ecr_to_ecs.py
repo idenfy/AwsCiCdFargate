@@ -38,7 +38,6 @@ class PipelineEcrToEcs:
             main_listener=main_listener,
             deployments_listener=deployments_listener,
             ecs_cluster=ecs_cluster,
-            ecs_service=ecs_service,
             production_target_group=production_target_group,
             deployment_target_group=deployment_target_group
         ).get_resource()

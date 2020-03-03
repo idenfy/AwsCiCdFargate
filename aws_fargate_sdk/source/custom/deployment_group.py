@@ -25,7 +25,6 @@ class DeploymentGroup:
             production_target_group,
             deployment_target_group,
             ecs_cluster: Cluster,
-            ecs_service
     ) -> None:
         """
         Constructor.
@@ -51,7 +50,6 @@ class DeploymentGroup:
         self.__production_target_group = production_target_group
         self.__deployment_target_group = deployment_target_group
         self.__ecs_cluster = ecs_cluster
-        self.__ecs_service = ecs_service
 
         self.__custom_resource_role = Role(
             self.__stack,
@@ -124,8 +122,6 @@ class DeploymentGroup:
     def get_resource(self):
         """
         Creates a custom resource to manage a deployment group.
-
-        :param scope: A scope in which this resource should be created.
 
         :return: Custom resource to manage a deployment group.
         """
@@ -204,7 +200,7 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__ecs_service.service_name,
+                        'serviceName': self.__prefix + 'FargateService',
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
@@ -269,7 +265,7 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__ecs_service.service_name,
+                        'serviceName': self.__prefix + 'FargateService',
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
