@@ -25,7 +25,6 @@ class DeploymentGroup:
             production_target_group,
             deployment_target_group,
             ecs_cluster: Cluster,
-            ecs_service
     ) -> None:
         """
         Constructor.
@@ -51,7 +50,6 @@ class DeploymentGroup:
         self.__production_target_group = production_target_group
         self.__deployment_target_group = deployment_target_group
         self.__ecs_cluster = ecs_cluster
-        self.__ecs_service = ecs_service
 
         self.__custom_resource_role = Role(
             self.__stack,
@@ -204,12 +202,12 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__ecs_service.service_name,
+                        'serviceName': self.__prefix + 'FargateService',
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'DeploymentGroup',
+            "physical_resource_id": self.__prefix + 'CreateDeploymentGroup',
         }
 
     def __on_update(self) -> Optional[Dict[Any, Any]]:
@@ -269,12 +267,12 @@ class DeploymentGroup:
                 },
                 'ecsServices': [
                     {
-                        'serviceName': self.__ecs_service.service_name,
+                        'serviceName': self.__prefix + 'FargateService',
                         'clusterName': self.__ecs_cluster.cluster_name
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'DeploymentGroup',
+            "physical_resource_id": self.__prefix + 'UpdateDeploymentGroup',
         }
 
     def __on_delete(self) -> Optional[Dict[Any, Any]]:
@@ -290,5 +288,5 @@ class DeploymentGroup:
                 'applicationName': self.__ecs_application.application_name,
                 'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
             },
-            "physical_resource_id": self.__prefix + 'DeploymentGroup',
+            "physical_resource_id": self.__prefix + 'DeleteDeploymentGroup',
         }
