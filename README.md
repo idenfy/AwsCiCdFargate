@@ -1,101 +1,115 @@
 ## AWS Fargate SDK
-A package used to deploy a fargate service to ECS.
+
+A library that creates a full out-of-the-box solution for ECS Fargate with CI/CD pipeline.
+
+#### Remarks
+
+The project is written by [Deividas Tamkus](https://github.com/deitam), supervised by 
+[Laimonas Sutkus](https://github.com/laimonassutkus) and is owned by 
+[iDenfy](https://github.com/idenfy). This is an open source
+library intended to be used by anyone. [iDenfy](https://github.com/idenfy) aims
+to share its knowledge and educate market for better and more secure IT infrastructure.
+
+#### Related technology
+
+This project utilizes the following technology:
+
+- *AWS* (Amazon Web Services).
+- *AWS CDK* (Amazon Web Services Cloud Development Kit).
+- *AWS CloudFormation*.
+- *AWS Loadbalancer*.
+- *AWS ECS* (Amazon Web Services Elastic Container Service).
+- *AWS Fargate* (Serverless solution for ECS).
+- *AWS CodePipeline*.
+
+#### Assumptions
+
+This library project assumes the following:
+
+- You have knowledge in AWS (Amazon Web Services).
+- You have knowledge in AWS CloudFormation and AWS loadbalancing.
+- You are managing your infrastructure with AWS CDK.
+- You are writing AWS CDK templates with a python language.
+
+#### Install
+
+The project is built and uploaded to PyPi. Install it by using pip.
+
+```bash
+pip install aws-fargate-cdk
+```
+
+Or directly install it through source.
+
+```bash
+./build.sh -ic
+```
 
 ### Description
 
-This package creates a Fargate service with autoscaling, a load balancer and two pipelines.
+This package creates a Fargate service with autoscaling, a load balancer and two pipelines 
+for a complete out-of-the-box hosting infrastructure.
 
 The pipelines are as follows:
 
-1. ECR to ECS. This pipeline takes an image pushed to ECR and deploys it to Fargate using Blue/Green deployment.
+1. **ECR to ECS**. This pipeline takes an image pushed to ECR and deploys it to Fargate using Blue/Green deployment.
 The pipeline needs to be triggered manually duo to AWS CloudWatch event bugs related to ECR.
-2. CodeCommit to ECR to first pipeline. This pipeline takes code pushed to the master branch of a CodeCommit repository, builds an image out of it (source code needs a Dockerfile), pushes it to ECR and automatically triggers the first pipeline, which then deploys it to ECS.
+2. **CodeCommit to ECR**. This pipeline takes code pushed to the master branch of a CodeCommit repository, builds an image out of it (_source code needs a Dockerfile_), pushes it to ECR and automatically triggers the first pipeline, which then deploys it to ECS.
 
-TL;DR Pushing code with a Dockerfile to CodeCommit deploys it to ECS
+**TL;DR** Pushing source code with a Dockerfile to CodeCommit repository deploys it to ECS Fargate.
 
-### Prerequisites
+### Examples
 
-In order to operate the package, you must first install it, using
- 
-```pip install aws-fargate-sdk```
+To create a full infrastructure around ECS Fargate, use the following code below in your stack.
 
-You also need to have an AWS account with a confugured AWS CLI. Here's how to do it:
-
-https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
-
-### How to use
-
-Import the main file into your project and call the Main classes constructor in your own cdk stack.
-
-The parameters for the main class include your scope, project prefix, VPC, load balancer parameters, ecs parameters and aws region.
-
-Load balancer paramaters include subnets, security groups, dns name for certificate and list of http codes to be considered healthy for health check.
-
-Ecs parameters include container name, container cpu, container ram, container port, container environment variables, security groups and subnets for your service.
-
-Read more on all parameters in their corresponding class docstrings.
-
-Your code should look something like this:
 ```python
-import jsii
-from aws_cdk import core, aws_iam, aws_ec2
-from aws_vpc.aws_cdk.vpc_template import VpcTemplate
-from aws_fargate_sdk.main import Main
+from aws_cdk import core, aws_ec2, aws_elasticloadbalancingv2
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
 from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
+from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
+from aws_fargate_sdk.ecs_fargate_with_ci_cd import EcsFargateWithCiCd
 
-@jsii.implements(core.IAspect)
-class Permissions:
-
-    def visit(self, node: core.IConstruct) -> None:
-        if isinstance(node, aws_iam.Role):
-            node.add_to_policy(
-                aws_iam.PolicyStatement(
-                    actions=["iam:PassRole"],
-                    resources=['*'],
-                    effect=aws_iam.Effect.ALLOW
-                )
-            )
-
-
-class AwsCdkStack(core.Stack):
-
-    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
-        super().__init__(scope, id, **kwargs)
-
-        vpc_stack = VpcTemplate('prefix', self)
-
-        vpc = vpc_stack.vpc
-
-        self.node.apply_aspect(Permissions())
-
-        security_group = aws_ec2.SecurityGroup(
-            self, 'FargateEcsSecurityGroup',
-            vpc=vpc, allow_all_outbound=True,
+class MainStack(core.Stack):
+    def __init__(self, scope: core.App) -> None:
+        super().__init__(
+            scope=scope,
+            id='MyCoolStack'
         )
 
-        security_group.add_ingress_rule(
-            aws_ec2.Peer.any_ipv4(),
-            connection=aws_ec2.Port(
-                protocol=aws_ec2.Protocol.ALL,
-                string_representation='FargateEcsSecurityGroupIngressRule',
-                from_port=-1,
-                to_port=-1
-            )
+        # Create your own vpc or use an existing one.
+        vpc = aws_ec2.Vpc(...)
+        
+        # Create a security group for your ECS Fargate instances.
+        sg = aws_ec2.SecurityGroup(...)
+        
+        # Create a loadbalancer.
+        loadbalancer = aws_elasticloadbalancingv2.ApplicationLoadBalancer(...)
+        production_listener = aws_elasticloadbalancingv2.ApplicationListener(self, 'Prod', load_balancer=loadbalancer)
+        deployments_listener = aws_elasticloadbalancingv2.ApplicationListener(self, 'Test', load_balancer=loadbalancer)
+        
+        ecs_params = EcsParams('FargateEcsContainer', 256, 512, 80, {}, [sg], vpc.private_subnets)
+        load_params = LoadBalancerParams()
+        listener_params = LbListenerParameters(
+            production_listener=production_listener,
+            production_listener_path='/*',
+            production_listener_rule_priority=100,
+            deployment_listener=deployments_listener,
+            deployment_listener_path='/*',
+            deployment_listener_rule_priority=100
         )
 
-        groups = [
-            security_group
-        ]
-
-        pub_subnets = vpc.public_subnets
-        pri_subnets = vpc.private_subnets
-
-        ecs_params = EcsParams('FargateEcsContainer', '256', '512', 80, {}, ecs_security_groups=groups, ecs_subnets=pri_subnets)
-        load_params = LoadBalancerParams(pub_subnets, groups, 'myweb.com')
-
-        self.main = Main(self, 'ProjectPrefix', vpc, load_params, ecs_params, 'your-preferred-aws-region')
+        self.ecs_infrastructure = EcsFargateWithCiCd(
+            scope=self,
+            prefix='MyCool',
+            vpc=vpc,
+            lb_params=load_params,
+            ecs_params=ecs_params,
+            lb_listener_params=listener_params
+        )
+        
+        # Access CodeCommit-To-Ecr pipeline.
+        _ = self.ecs_infrastructure.pipeline.commit_to_ecr
+        
+        # Access Ecr-To-Ecs pipeline.
+        _ = self.ecs_infrastructure.pipeline.ecr_to_ecs
 ```
-Notes:
-1. In the example we use the aws-vpc python package to create the VPC, but you can use any VPC object.
-2. Your stack requires permissions to pass role to create these resources, this is accomplished using aspects and can be seen in the example.
