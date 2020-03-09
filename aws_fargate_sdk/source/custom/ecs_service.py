@@ -101,7 +101,13 @@ class EcsService:
 
         :return: A dictionary command.
         """
-        return None
+        return {
+                "service": self.service_name(),
+                "action": 'describeClusters',
+                "physical_resource_id": self.__prefix + 'FargateServiceCustom',
+                'parameters': {
+                }
+            }
 
     def __on_delete(self) -> Optional[Dict[Any, Any]]:
         """
