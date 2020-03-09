@@ -1,6 +1,9 @@
 # Release history
 
 #### 4.0.0
+Build environment variable fix.
+
+#### 4.0.0
 Add pipeline parameters and fix some major pipeline bugs.
 
 #### 3.1.0

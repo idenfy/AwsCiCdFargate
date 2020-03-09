@@ -118,4 +118,8 @@ class PipelineCommitToEcr:
         build_environment.pop('PIPELINE_NAME', None)
         build_environment.pop('REGION', None)
 
+        for key, value in build_environment.items():
+            if not isinstance(value, aws_codebuild.BuildEnvironmentVariable):
+                build_environment[key] = aws_codebuild.BuildEnvironmentVariable(value=value)
+
         return {**base_environment, **build_environment}
