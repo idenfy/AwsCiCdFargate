@@ -131,5 +131,8 @@ FROM nginx
 
 - Find a newly created git repository.
 
-- Commit the Dockerfile to the newly created repository to trigger a pipeline. 
+- Commit the Dockerfile to the newly created repository to trigger a pipeline.
+
 (A tutorial on pushing code to remote repositories: [AWS Tutorial](https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-create-commit.html)).
+
+(A tutorial on setting up git ssh with aws git repositories: [AWS Tutorial](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-ssh-unixes.html))
