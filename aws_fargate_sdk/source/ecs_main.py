@@ -130,6 +130,13 @@ class Ecs:
                     'launchType': 'FARGATE'
                 }
             },
+            on_update={
+                "service": 'ECS',
+                "action": 'describeClusters',
+                "physical_resource_id": self.prefix + 'FargateServiceCustom',
+                'parameters': {
+                }
+            },
             on_delete={
                 "service": 'ECS',
                 "action": 'deleteService',
