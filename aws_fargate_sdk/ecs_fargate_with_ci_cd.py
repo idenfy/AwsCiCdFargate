@@ -22,13 +22,14 @@ class EcsFargateWithCiCd:
     ) -> None:
         """
         Constructor.
+
+        :param scope: A CF stack in which to create resources.
         :param prefix: The prefix for all newly created resources. E.g. Wordpress.
-        :param region: The region where resources and the stack are deployed.
         :param vpc: Virtual private cloud (VPC).
         :param lb_params: Loadbalancer parameters.
         :param ecs_params: Compute power parameters for newly deployed container.
+        :param lb_listener_params: Parameters two configure existing listeners with listener rules.
         """
-
         self.lb_listener_config = LbListenerConfig(
             scope,
             prefix=prefix,
@@ -41,14 +42,7 @@ class EcsFargateWithCiCd:
         self.ecs = Ecs(
             scope,
             prefix=prefix,
-            environment=ecs_params.container_environment,
-            cpu=ecs_params.container_cpu,
-            ram=ecs_params.container_ram,
-            cpu_threshold=ecs_params.cpu_threshold,
-            container_name=ecs_params.container_name,
-            container_port=ecs_params.container_port,
-            security_groups=ecs_params.ecs_security_groups,
-            subnets=ecs_params.ecs_subnets,
+            ecs_params=ecs_params,
             lb_listener_config=self.lb_listener_config,
             vpc=vpc
         )
