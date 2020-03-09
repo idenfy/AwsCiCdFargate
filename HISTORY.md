@@ -1,5 +1,8 @@
 # Release history
 
+#### 4.0.0
+Add pipeline parameters and fix some major pipeline bugs.
+
 #### 3.1.0
 Create custom resource to create ecs service. With deployment controller CODE_DEPLOY you
 can not do CF updates.

@@ -1,5 +1,6 @@
 import re
 
+from typing import Any, Dict
 from aws_cdk.custom_resources import AwsCustomResource
 from aws_empty_bucket.empty_s3_bucket import EmptyS3Bucket
 from aws_fargate_sdk.source.pipeline_commit_to_ecr import PipelineCommitToEcr
@@ -28,6 +29,7 @@ class EcsPipeline:
             ecs_cluster: aws_ecs.Cluster,
             task_def: str,
             app_spec: str,
+            build_environment: Dict[str, Any],
             production_target_group,
             deployment_target_group
     ) -> None:
@@ -43,6 +45,10 @@ class EcsPipeline:
         :param ecs_cluster: ECS cluster in which the ECS service is.
         :param task_def: Task definition object defining the parameters for a newly deployed container.
         :param app_spec: App specification object defining the ecs service modifications.
+        :param build_environment: Environment variables for a build step. You can put here various config
+        parameters, urls, secrets, etc.
+        :param production_target_group: A target group where your blue instances are serving production traffic.
+        :param deployment_target_group: A target group where your green instances are ready to serve production traffic.
         """
         self.artifacts_bucket = EmptyS3Bucket(
             scope,
@@ -84,6 +90,7 @@ class EcsPipeline:
             artifacts_bucket=self.artifacts_bucket,
             ecr_repository=self.ecr_repository,
             source_repository=self.source_code_repository,
+            build_environment=build_environment,
             next_pipeline=self.ecr_to_ecs.ecr_to_ecs_pipeline
         )
 

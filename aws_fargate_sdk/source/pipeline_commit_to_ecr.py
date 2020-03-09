@@ -1,3 +1,6 @@
+import copy
+
+from typing import Dict, Any
 from aws_cdk import aws_codepipeline, aws_codepipeline_actions, aws_codecommit, aws_iam, aws_codebuild, aws_ecr
 from aws_cdk.aws_codepipeline import IPipeline
 from aws_cdk.aws_s3 import IBucket
@@ -12,8 +15,14 @@ class PipelineCommitToEcr:
             artifacts_bucket: IBucket,
             ecr_repository: aws_ecr.Repository,
             source_repository: aws_codecommit.Repository,
+            build_environment: Dict[str, Any],
             next_pipeline: IPipeline
     ):
+        self.region = scope.region
+        self.ecr_repository = ecr_repository
+        self.build_environment = build_environment
+        self.next_pipeline = next_pipeline
+
         self.source_artifact = aws_codepipeline.Artifact(
             artifact_name=prefix + 'FargateCodeCommitSourceArtifact',
         )
@@ -30,11 +39,7 @@ class PipelineCommitToEcr:
         self.docker_build = aws_codebuild.PipelineProject(
             scope, prefix + 'FargateCodeBuildProject',
             project_name=prefix + 'FargateCodeBuildProject',
-            environment_variables={
-                'REPOSITORY_URI': aws_codebuild.BuildEnvironmentVariable(value=ecr_repository.repository_uri),
-                'PIPELINE_NAME': aws_codebuild.BuildEnvironmentVariable(value=next_pipeline.pipeline_name),
-                'REGION': aws_codebuild.BuildEnvironmentVariable(value=scope.region)
-            },
+            environment_variables=self.build_environment_variables(),
             environment=aws_codebuild.BuildEnvironment(
                 build_image=aws_codebuild.LinuxBuildImage.UBUNTU_14_04_DOCKER_18_09_0,
                 compute_type=aws_codebuild.ComputeType.SMALL,
@@ -100,3 +105,17 @@ class PipelineCommitToEcr:
                 )
             ]
         )
+
+    def build_environment_variables(self):
+        base_environment = {
+            'REPOSITORY_URI': aws_codebuild.BuildEnvironmentVariable(value=self.ecr_repository.repository_uri),
+            'PIPELINE_NAME': aws_codebuild.BuildEnvironmentVariable(value=self.next_pipeline.pipeline_name),
+            'REGION': aws_codebuild.BuildEnvironmentVariable(value=self.region)
+        }
+
+        build_environment = copy.deepcopy(self.build_environment)
+        build_environment.pop('REPOSITORY_URI', None)
+        build_environment.pop('PIPELINE_NAME', None)
+        build_environment.pop('REGION', None)
+
+        return {**base_environment, **build_environment}

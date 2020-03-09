@@ -47,7 +47,7 @@ Or directly install it through source.
 
 ### Description
 
-This package creates a Fargate service with autoscaling, a load balancer and two pipelines 
+This package creates a Fargate service with autoscaling, balancing and two pipelines 
 for a complete out-of-the-box hosting infrastructure.
 
 The pipelines are as follows:
@@ -60,11 +60,14 @@ The pipeline needs to be triggered manually duo to AWS CloudWatch event bugs rel
 
 ### Examples
 
-To create a full infrastructure around ECS Fargate, use the following code below in your stack.
+##### Complete tutorial
+
+- Create a full infrastructure around ECS Fargate by using the following code below in your stack.
 
 ```python
 from aws_cdk import core, aws_ec2, aws_elasticloadbalancingv2
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
+from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
 from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
 from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
 from aws_fargate_sdk.ecs_fargate_with_ci_cd import EcsFargateWithCiCd
@@ -89,6 +92,7 @@ class MainStack(core.Stack):
         
         ecs_params = EcsParams('FargateEcsContainer', 256, 512, 80, {}, [sg], vpc.private_subnets)
         load_params = LoadBalancerParams()
+        pipeline_params = PipelineParams()
         listener_params = LbListenerParameters(
             production_listener=production_listener,
             production_listener_path='/*',
@@ -104,7 +108,8 @@ class MainStack(core.Stack):
             vpc=vpc,
             lb_params=load_params,
             ecs_params=ecs_params,
-            lb_listener_params=listener_params
+            lb_listener_params=listener_params,
+            pipeline_params=pipeline_params
         )
         
         # Access CodeCommit-To-Ecr pipeline.
@@ -113,3 +118,18 @@ class MainStack(core.Stack):
         # Access Ecr-To-Ecs pipeline.
         _ = self.ecs_infrastructure.pipeline.ecr_to_ecs
 ```
+
+- Provision you infrastructure with `CloudFormation` by calling `cdk deploy`.
+
+- Create a Dockerfile as simple as:
+
+```dockerfile
+FROM nginx
+```
+
+- After you provision your infrastructure, go to `AWS CodeCommit` in your AWS Console.
+
+- Find a newly created git repository.
+
+- Commit the Dockerfile to the newly created repository to trigger a pipeline. 
+(A tutorial on pushing code to remote repositories: [AWS Tutorial](https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-create-commit.html)).

@@ -1,5 +1,6 @@
 from aws_cdk import aws_ec2
 from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
+from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
 from aws_fargate_sdk.source.ecs_main import Ecs
 from aws_fargate_sdk.source.ecs_pipeline import EcsPipeline
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
@@ -18,7 +19,8 @@ class EcsFargateWithCiCd:
             vpc: aws_ec2.Vpc,
             lb_params: LoadBalancerParams,
             ecs_params: EcsParams,
-            lb_listener_params: LbListenerParameters
+            lb_listener_params: LbListenerParameters,
+            pipeline_params: PipelineParams
     ) -> None:
         """
         Constructor.
@@ -29,6 +31,7 @@ class EcsFargateWithCiCd:
         :param lb_params: Loadbalancer parameters.
         :param ecs_params: Compute power parameters for newly deployed container.
         :param lb_listener_params: Parameters two configure existing listeners with listener rules.
+        :param pipeline_params: Configuration parameters for ci/cd pipeline.
         """
         self.lb_listener_config = LbListenerConfig(
             scope,
@@ -56,6 +59,7 @@ class EcsFargateWithCiCd:
             ecs_cluster=self.ecs.cluster,
             task_def=self.ecs.create_task_def(),
             app_spec=self.ecs.create_appspec(),
+            build_environment=pipeline_params.build_environment,
             production_target_group=self.lb_listener_config.production_target_group,
             deployment_target_group=self.lb_listener_config.deployment_target_group
         )

@@ -18,5 +18,5 @@ class LoadBalancerParams:
 
         :return: No return.
         """
-        self.healthy_http_codes = healthy_http_codes
-        self.health_check_path = health_check_path
+        self.healthy_http_codes: [List[int]] = healthy_http_codes or [200]
+        self.health_check_path: str = health_check_path or '/'
