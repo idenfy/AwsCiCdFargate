@@ -1,5 +1,8 @@
 # Release history
 
+#### 4.0.2
+Destroy ecr on delete.
+
 #### 4.0.0
 Build environment variable fix.
 

@@ -1,6 +1,7 @@
 import re
 
 from typing import Any, Dict
+from aws_cdk.core import RemovalPolicy
 from aws_cdk.custom_resources import AwsCustomResource
 from aws_empty_bucket.empty_s3_bucket import EmptyS3Bucket
 from aws_fargate_sdk.source.pipeline_commit_to_ecr import PipelineCommitToEcr
@@ -65,7 +66,8 @@ class EcsPipeline:
 
         self.ecr_repository = aws_ecr.Repository(
             scope, prefix + 'FargateEcrRepository',
-            repository_name=prefix.lower()
+            repository_name=prefix.lower(),
+            removal_policy=RemovalPolicy.DESTROY
         )
 
         self.ecr_to_ecs = PipelineEcrToEcs(
