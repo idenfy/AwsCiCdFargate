@@ -85,7 +85,7 @@ class Ecs:
             task=self.task,
             ecs_params=self.ecs_params,
             production_target_group=lb_listener_config.production_target_group
-        ).get_resource()
+        ).get_resource().custom_resource
 
         self.service.node.add_dependency(lb_listener_config.production_target_group)
         self.service.node.add_dependency(lb_listener_config.deployment_target_group)

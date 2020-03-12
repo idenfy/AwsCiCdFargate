@@ -1,14 +1,15 @@
 from typing import Any, Dict, Optional
 from aws_cdk import core, aws_ecs
 from aws_cdk.aws_elasticloadbalancingv2 import CfnTargetGroup
-from aws_cdk.custom_resources import AwsCustomResource
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
+from aws_ecs_service.ecs_service import EcsService as EcsServiceCustomResource
 
 
 class EcsService:
     """
     Custom CloudFormation resource which creates a git commit action to set deployment configuration for ecs project.
     """
+
     def __init__(
             self,
             stack: core.Stack,
@@ -34,7 +35,7 @@ class EcsService:
         self.__ecs_params = ecs_params
         self.__production_target_group = production_target_group
 
-    def get_resource(self):
+    def get_resource(self) -> EcsServiceCustomResource:
         """
         Creates a custom resource to manage an ecs deployment configuration.
 
@@ -42,22 +43,13 @@ class EcsService:
 
         :return: Custom resource to manage an ecs deployment configuration.
         """
-        return AwsCustomResource(
-            self.__stack,
-            self.__prefix + "FargateService",
-            on_create=self.__on_create(),
-            on_update=self.__on_update(),
-            on_delete=self.__on_delete()
+        return EcsServiceCustomResource(
+            scope=self.__stack,
+            id=self.__prefix + "FargateService",
+            on_create_action=self.__on_create(),
+            on_update_action=self.__on_update(),
+            on_delete_action=self.__on_delete()
         )
-
-    @staticmethod
-    def service_name() -> str:
-        """
-        Returns a service name that this custom resource manages.
-
-        :return: Service name.
-        """
-        return 'ECS'
 
     def __on_create(self) -> Optional[Dict[Any, Any]]:
         """
@@ -66,33 +58,28 @@ class EcsService:
         :return: A dictionary command.
         """
         return {
-            "service": self.service_name(),
-            "action": 'createService',
-            "physical_resource_id": self.__prefix + 'FargateServiceCustom',
-            'parameters': {
-                'cluster': self.__cluster.cluster_arn,
-                'serviceName': self.__prefix + 'FargateService',
-                'taskDefinition': self.__task.task_definition_arn,
-                'loadBalancers': [
-                    {
-                        'containerName': self.__ecs_params.container_name,
-                        'containerPort': self.__ecs_params.container_port,
-                        'targetGroupArn': self.__production_target_group.ref
-                    }
-                ],
-                'desiredCount': 1,
-                'networkConfiguration': {
-                    'awsvpcConfiguration': {
-                        'assignPublicIp': 'DISABLED',
-                        'securityGroups': [sub.security_group_id for sub in self.__ecs_params.ecs_security_groups],
-                        'subnets': [sub.subnet_id for sub in self.__ecs_params.ecs_subnets],
-                    }
-                },
-                'deploymentController': {
-                    'type': 'CODE_DEPLOY'
-                },
-                'launchType': 'FARGATE'
-            }
+            'cluster': self.__cluster.cluster_arn,
+            'serviceName': self.__prefix + 'FargateService',
+            'taskDefinition': self.__task.task_definition_arn,
+            'loadBalancers': [
+                {
+                    'containerName': self.__ecs_params.container_name,
+                    'containerPort': self.__ecs_params.container_port,
+                    'targetGroupArn': self.__production_target_group.ref
+                }
+            ],
+            'desiredCount': 1,
+            'networkConfiguration': {
+                'awsvpcConfiguration': {
+                    'assignPublicIp': 'DISABLED',
+                    'securityGroups': [sub.security_group_id for sub in self.__ecs_params.ecs_security_groups],
+                    'subnets': [sub.subnet_id for sub in self.__ecs_params.ecs_subnets],
+                }
+            },
+            'deploymentController': {
+                'type': 'CODE_DEPLOY'
+            },
+            'launchType': 'FARGATE'
         }
 
     def __on_update(self) -> Optional[Dict[Any, Any]]:
@@ -102,12 +89,10 @@ class EcsService:
         :return: A dictionary command.
         """
         return {
-                "service": self.service_name(),
-                "action": 'describeClusters',
-                "physical_resource_id": self.__prefix + 'FargateServiceCustom',
-                'parameters': {
-                }
-            }
+            'cluster': self.__cluster.cluster_arn,
+            'serviceName': self.__prefix + 'FargateService',
+            'healthCheckGracePeriodSeconds': 0
+        }
 
     def __on_delete(self) -> Optional[Dict[Any, Any]]:
         """
@@ -116,12 +101,7 @@ class EcsService:
         :return: A dictionary command.
         """
         return {
-            "service": self.service_name(),
-            "action": 'deleteService',
-            "physical_resource_id": self.__prefix + 'FargateServiceCustom',
-            'parameters': {
-                'cluster': self.__cluster.cluster_arn,
-                'service': self.__prefix + 'FargateService',
-                'force': True
-            }
+            'cluster': self.__cluster.cluster_arn,
+            'service': self.__prefix + 'FargateService',
+            'force': True
         }

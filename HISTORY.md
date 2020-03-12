@@ -1,5 +1,9 @@
 # Release history
 
+#### 4.0.5
+Add dependency which creates ecs service. CloudFormation itself
+has too many bugs.
+
 #### 4.0.2
 Destroy ecr on delete.
 
