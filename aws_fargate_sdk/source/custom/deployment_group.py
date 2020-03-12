@@ -5,7 +5,7 @@ from aws_cdk.aws_codedeploy import EcsApplication
 from aws_cdk.aws_ecs import Cluster
 from aws_cdk.aws_elasticloadbalancingv2 import CfnListener
 from aws_cdk.aws_iam import Role, PolicyStatement, PolicyDocument, Effect, ServicePrincipal, CompositePrincipal
-from aws_cdk.custom_resources import AwsCustomResource
+from aws_cdk.custom_resources import AwsCustomResource, PhysicalResourceId
 
 
 class DeploymentGroup:
@@ -126,8 +126,8 @@ class DeploymentGroup:
         :return: Custom resource to manage a deployment group.
         """
         return AwsCustomResource(
-            self.__stack,
-            self.__prefix + "CustomFargateDeploymentGroupResource",
+            scope=self.__stack,
+            id=self.__prefix + "CustomFargateDeploymentGroupResource",
             on_create=self.__on_create(),
             on_update=self.__on_update(),
             on_delete=self.__on_delete(),
@@ -205,7 +205,7 @@ class DeploymentGroup:
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'DeploymentGroup',
+            "physical_resource_id": PhysicalResourceId.of(self.__prefix + 'DeploymentGroup'),
         }
 
     def __on_update(self) -> Optional[Dict[Any, Any]]:
@@ -270,7 +270,7 @@ class DeploymentGroup:
                     },
                 ],
             },
-            "physical_resource_id": self.__prefix + 'DeploymentGroup',
+            "physical_resource_id": PhysicalResourceId.of(self.__prefix + 'DeploymentGroup'),
         }
 
     def __on_delete(self) -> Optional[Dict[Any, Any]]:
@@ -279,6 +279,8 @@ class DeploymentGroup:
 
         :return: A dictionary command.
         """
+
+
         return {
             "service": self.service_name(),
             "action": "deleteDeploymentGroup",
@@ -286,5 +288,5 @@ class DeploymentGroup:
                 'applicationName': self.__ecs_application.application_name,
                 'deploymentGroupName': self.__prefix + 'FargateDeploymentGroup',
             },
-            "physical_resource_id": self.__prefix + 'DeploymentGroup',
+            "physical_resource_id": PhysicalResourceId.of(self.__prefix + 'DeploymentGroup'),
         }

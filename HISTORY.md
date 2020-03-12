@@ -1,5 +1,8 @@
 # Release history
 
+#### 4.0.6
+Use newest cdk with newest breaking changes.
+
 #### 4.0.5
 Add dependency which creates ecs service. CloudFormation itself
 has too many bugs.
