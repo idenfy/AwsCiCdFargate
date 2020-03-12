@@ -1,5 +1,8 @@
 # Release history
 
+#### 4.0.7
+Dependency update.
+
 #### 4.0.6
 Use newest cdk with newest breaking changes.
 
