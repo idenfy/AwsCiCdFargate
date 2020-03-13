@@ -90,7 +90,7 @@ class EcsService:
         """
         return {
             'cluster': self.__cluster.cluster_arn,
-            'serviceName': self.__prefix + 'FargateService',
+            'service': self.__prefix + 'FargateService',
             'healthCheckGracePeriodSeconds': 0
         }
 

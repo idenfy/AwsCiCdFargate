@@ -1,5 +1,8 @@
 # Release history
 
+#### 4.0.8
+Dependency update. Fix ecs service name key.
+
 #### 4.0.7
 Dependency update.
 
