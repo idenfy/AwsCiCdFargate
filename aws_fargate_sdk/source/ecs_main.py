@@ -5,7 +5,7 @@ from aws_cdk.core import Stack, RemovalPolicy
 from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
 from aws_fargate_sdk.source.custom.ecs_service import EcsService
 from aws_fargate_sdk.source.lb_listener_config import LbListenerConfig
-
+from aws_ecs_cluster.ecs_cluster import EcsCluster
 
 class Ecs:
     """
@@ -59,7 +59,7 @@ class Ecs:
             removal_policy=RemovalPolicy.DESTROY
         )
 
-        self.cluster = aws_ecs.Cluster(
+        self.cluster = EcsCluster(
             scope, prefix + 'FargateCluster',
             cluster_name=prefix + 'FargateCluster',
             vpc=vpc
