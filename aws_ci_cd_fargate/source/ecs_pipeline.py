@@ -4,12 +4,12 @@ from typing import Any, Dict
 from aws_cdk.core import RemovalPolicy
 from aws_cdk.custom_resources import AwsCustomResource
 from aws_empty_bucket.empty_s3_bucket import EmptyS3Bucket
+from aws_empty_ecr_repository.empty_ecr_repository import EmptyEcrRepository
 from aws_ci_cd_fargate.source.pipeline_commit_to_ecr import PipelineCommitToEcr
 from aws_ci_cd_fargate.source.pipeline_ecr_to_ecs import PipelineEcrToEcs
 from aws_cdk import (
     aws_ecs,
     aws_codecommit,
-    aws_ecr,
     aws_elasticloadbalancingv2,
     aws_s3,
     core
@@ -64,7 +64,7 @@ class EcsPipeline:
             repository_name=prefix + 'FargateSourceCode'
         )
 
-        self.ecr_repository = aws_ecr.Repository(
+        self.ecr_repository = EmptyEcrRepository(
             scope, prefix + 'FargateEcrRepository',
             repository_name=prefix.lower(),
             removal_policy=RemovalPolicy.DESTROY

@@ -1,5 +1,8 @@
 # Release history
 
+#### 5.0.1
+Use empty ecs repository dependency.
+
 #### 5.0.0
 Project rename to a better and more explanatory name.
 

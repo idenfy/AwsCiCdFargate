@@ -8,7 +8,7 @@ with open('HISTORY.md') as history_file:
 
 setup(
     name='aws_ci_cd_fargate',
-    version='5.0.0',
+    version='5.0.1',
     license='GNU GENERAL PUBLIC LICENSE Version 3',
     packages=find_packages(exclude=['venv', 'test']),
     description=(
@@ -37,7 +37,8 @@ setup(
         'aws-empty-bucket>=2.0.1,<3.0.0',
         'aws-vpc>=2.0.0,<3.0.0',
         'aws_ecs_service>=1.0.7,<2.0.0',
-        'aws-ecs-cluster>=1.0.1,<2.0.0'
+        'aws-ecs-cluster>=1.0.1,<2.0.0',
+        'aws-empty-ecr-repository>=1.0.2,<2.0.0'
     ],
     author='Deividas Tamkus, Laimonas Sutkus',
     author_email='dtamkus@gmail.com (deividas@idenfy.com), laimonas.sutkus@gmail.com (laimonas@idenfy.com)',
