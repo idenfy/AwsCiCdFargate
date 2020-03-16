@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 from aws_cdk import core, aws_ecs
 from aws_cdk.aws_elasticloadbalancingv2 import CfnTargetGroup
-from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
+from aws_ci_cd_fargate.parameters.ecs_parameters import EcsParams
 from aws_ecs_service.ecs_service import EcsService as EcsServiceCustomResource
 
 

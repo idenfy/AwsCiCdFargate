@@ -1,5 +1,8 @@
 # Release history
 
+#### 5.0.0
+Project rename to a better and more explanatory name.
+
 #### 4.0.9
 Dependency update.
 

@@ -7,12 +7,12 @@ with open('HISTORY.md') as history_file:
     HISTORY = history_file.read()
 
 setup(
-    name='aws_fargate_cdk',
-    version='4.0.9',
+    name='aws_ci_cd_fargate',
+    version='5.0.0',
     license='GNU GENERAL PUBLIC LICENSE Version 3',
     packages=find_packages(exclude=['venv', 'test']),
     description=(
-        'AWS CDK package that helps deploying a fargate service.'
+        'AWS CDK package that helps deploying a fargate service with ci/cd.'
     ),
     long_description=README + '\n\n' + HISTORY,
     long_description_content_type="text/markdown",

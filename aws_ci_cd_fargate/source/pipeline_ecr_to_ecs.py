@@ -2,8 +2,8 @@ from aws_cdk import aws_codepipeline, aws_codepipeline_actions, aws_codecommit, 
 from aws_cdk.aws_ecs import CfnService
 from aws_cdk.aws_s3 import IBucket
 from aws_cdk.core import Stack
-from aws_fargate_sdk.source.custom.deployment_config import DeploymentConfig
-from aws_fargate_sdk.source.custom.deployment_group import DeploymentGroup
+from aws_ci_cd_fargate.source.custom.deployment_config import DeploymentConfig
+from aws_ci_cd_fargate.source.custom.deployment_group import DeploymentGroup
 
 
 class PipelineEcrToEcs:

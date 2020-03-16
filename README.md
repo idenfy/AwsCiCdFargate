@@ -1,4 +1,4 @@
-## AWS Fargate SDK
+## AWS Ci Cd Fargate
 
 A library that creates a full out-of-the-box solution for ECS Fargate with CI/CD pipeline.
 
@@ -45,7 +45,7 @@ Or directly install it through source.
 ./build.sh -ic
 ```
 
-### Description
+#### Description
 
 This package creates a Fargate service with autoscaling, balancing and two pipelines 
 for a complete out-of-the-box hosting infrastructure.
@@ -58,19 +58,37 @@ The pipeline needs to be triggered manually duo to AWS CloudWatch event bugs rel
 
 **TL;DR** Pushing source code with a Dockerfile to CodeCommit repository deploys it to ECS Fargate.
 
-### Examples
+#### Examples
 
-##### Complete tutorial
+Create a fargate service with ci/cd:
+
+```python
+ecs_params = EcsParams(...)
+load_params = LoadBalancerParams(...)
+pipeline_params = PipelineParams(...)
+listener_params = LbListenerParameters(...)
+
+EcsFargateWithCiCd(
+    scope=scope,
+    prefix='pre',
+    vpc=vpc,
+    lb_params=load_params,
+    ecs_params=ecs_params,
+    lb_listener_params=listener_params,
+    pipeline_params=pipeline_params
+)
+```
+#### Tutorial
 
 - Create a full infrastructure around ECS Fargate by using the following code below in your stack.
 
 ```python
 from aws_cdk import core, aws_ec2, aws_elasticloadbalancingv2
-from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
-from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
-from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
-from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
-from aws_fargate_sdk.ecs_fargate_with_ci_cd import EcsFargateWithCiCd
+from aws_ci_cd_fargate.parameters.ecs_parameters import EcsParams
+from aws_ci_cd_fargate.parameters.pipeline_parameters import PipelineParams
+from aws_ci_cd_fargate.parameters.load_balancer_parameters import LoadBalancerParams
+from aws_ci_cd_fargate.parameters.lb_listener_parameters import LbListenerParameters
+from aws_ci_cd_fargate.ecs_fargate_with_ci_cd import EcsFargateWithCiCd
 
 class MainStack(core.Stack):
     def __init__(self, scope: core.App) -> None:

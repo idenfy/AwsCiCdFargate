@@ -1,11 +1,11 @@
 from aws_cdk import aws_ec2
-from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
-from aws_fargate_sdk.parameters.pipeline_parameters import PipelineParams
-from aws_fargate_sdk.source.ecs_main import Ecs
-from aws_fargate_sdk.source.ecs_pipeline import EcsPipeline
-from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
-from aws_fargate_sdk.parameters.load_balancer_parameters import LoadBalancerParams
-from aws_fargate_sdk.source.lb_listener_config import LbListenerConfig
+from aws_ci_cd_fargate.parameters.lb_listener_parameters import LbListenerParameters
+from aws_ci_cd_fargate.parameters.pipeline_parameters import PipelineParams
+from aws_ci_cd_fargate.source.ecs_main import Ecs
+from aws_ci_cd_fargate.source.ecs_pipeline import EcsPipeline
+from aws_ci_cd_fargate.parameters.ecs_parameters import EcsParams
+from aws_ci_cd_fargate.parameters.load_balancer_parameters import LoadBalancerParams
+from aws_ci_cd_fargate.source.lb_listener_config import LbListenerConfig
 
 
 class EcsFargateWithCiCd:

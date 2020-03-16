@@ -1,7 +1,7 @@
 from typing import List, Optional
 from aws_cdk import aws_elasticloadbalancingv2
 from aws_cdk.aws_ec2 import Vpc
-from aws_fargate_sdk.parameters.lb_listener_parameters import LbListenerParameters
+from aws_ci_cd_fargate.parameters.lb_listener_parameters import LbListenerParameters
 
 
 class LbListenerConfig:

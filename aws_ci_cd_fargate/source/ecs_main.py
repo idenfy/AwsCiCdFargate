@@ -2,9 +2,9 @@ import json
 
 from aws_cdk import aws_logs, aws_ecs, aws_applicationautoscaling, aws_ec2, aws_iam
 from aws_cdk.core import Stack, RemovalPolicy
-from aws_fargate_sdk.parameters.ecs_parameters import EcsParams
-from aws_fargate_sdk.source.custom.ecs_service import EcsService
-from aws_fargate_sdk.source.lb_listener_config import LbListenerConfig
+from aws_ci_cd_fargate.parameters.ecs_parameters import EcsParams
+from aws_ci_cd_fargate.source.custom.ecs_service import EcsService
+from aws_ci_cd_fargate.source.lb_listener_config import LbListenerConfig
 from aws_ecs_cluster.ecs_cluster import EcsCluster
 
 class Ecs:

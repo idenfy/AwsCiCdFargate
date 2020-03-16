@@ -4,8 +4,8 @@ from typing import Any, Dict
 from aws_cdk.core import RemovalPolicy
 from aws_cdk.custom_resources import AwsCustomResource
 from aws_empty_bucket.empty_s3_bucket import EmptyS3Bucket
-from aws_fargate_sdk.source.pipeline_commit_to_ecr import PipelineCommitToEcr
-from aws_fargate_sdk.source.pipeline_ecr_to_ecs import PipelineEcrToEcs
+from aws_ci_cd_fargate.source.pipeline_commit_to_ecr import PipelineCommitToEcr
+from aws_ci_cd_fargate.source.pipeline_ecr_to_ecs import PipelineEcrToEcs
 from aws_cdk import (
     aws_ecs,
     aws_codecommit,
