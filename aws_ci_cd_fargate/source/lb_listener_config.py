@@ -69,15 +69,10 @@ class LbListenerConfig:
                 )
             ],
             conditions=[
-                aws_elasticloadbalancingv2.CfnListenerRule.RuleConditionProperty(
-                    field='path-pattern',
-                    path_pattern_config=aws_elasticloadbalancingv2.CfnListenerRule.PathPatternConfigProperty(
-                        values=[listener_params.production_listener_path]
-                    )
-                )
+                listener_params.rule_condition
             ],
             listener_arn=listener_params.production_listener.ref,
-            priority=listener_params.production_listener_rule_priority
+            priority=listener_params.rule_priority
         )
 
         """
@@ -105,13 +100,8 @@ class LbListenerConfig:
                 )
             ],
             conditions=[
-                aws_elasticloadbalancingv2.CfnListenerRule.RuleConditionProperty(
-                    field='path-pattern',
-                    path_pattern_config=aws_elasticloadbalancingv2.CfnListenerRule.PathPatternConfigProperty(
-                        values=[listener_params.deployment_listener_path]
-                    )
-                )
+                listener_params.rule_condition
             ],
             listener_arn=listener_params.deployment_listener.ref,
-            priority=listener_params.deployment_listener_rule_priority
+            priority=listener_params.rule_priority
         )

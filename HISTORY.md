@@ -1,5 +1,9 @@
 # Release history
 
+#### 6.0.0
+Instead of taking path config as a parameter, take the 
+whole rule config.
+
 #### 5.0.1
 Use empty ecs repository dependency.
 

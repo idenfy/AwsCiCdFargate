@@ -113,11 +113,14 @@ class MainStack(core.Stack):
         pipeline_params = PipelineParams()
         listener_params = LbListenerParameters(
             production_listener=production_listener,
-            production_listener_path='/*',
-            production_listener_rule_priority=100,
             deployment_listener=deployments_listener,
-            deployment_listener_path='/*',
-            deployment_listener_rule_priority=100
+            rule_priority=100,
+            rule_condition=aws_elasticloadbalancingv2.CfnListenerRule.RuleConditionProperty(
+                    field='path-pattern',
+                    path_pattern_config=aws_elasticloadbalancingv2.CfnListenerRule.PathPatternConfigProperty(
+                        values=['/*']
+                    )
+                )
         )
 
         self.ecs_infrastructure = EcsFargateWithCiCd(

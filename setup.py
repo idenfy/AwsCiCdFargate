@@ -8,7 +8,7 @@ with open('HISTORY.md') as history_file:
 
 setup(
     name='aws_ci_cd_fargate',
-    version='5.0.1',
+    version='6.0.0',
     license='GNU GENERAL PUBLIC LICENSE Version 3',
     packages=find_packages(exclude=['venv', 'test']),
     description=(
