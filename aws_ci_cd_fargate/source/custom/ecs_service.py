@@ -64,7 +64,7 @@ class EcsService:
             'loadBalancers': [
                 {
                     'containerName': self.__ecs_params.container_name,
-                    'containerPort': self.__ecs_params.container_port,
+                    'containerPort': 80,
                     'targetGroupArn': self.__production_target_group.ref
                 }
             ],

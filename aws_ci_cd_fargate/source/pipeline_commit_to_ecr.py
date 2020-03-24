@@ -16,6 +16,7 @@ class PipelineCommitToEcr:
             ecr_repository: aws_ecr.Repository,
             source_repository: aws_codecommit.Repository,
             build_environment: Dict[str, Any],
+            docker_build_args: Dict[str, str],
             next_pipeline: IPipeline
     ):
         self.region = scope.region
@@ -36,6 +37,11 @@ class PipelineCommitToEcr:
             output=self.source_artifact
         )
 
+        docker_build_command = 'docker build -t $REPOSITORY_URI:latest .'
+
+        for key, value in docker_build_args.items():
+            docker_build_command += f' --build-arg {key}={value}'
+
         self.docker_build = aws_codebuild.PipelineProject(
             scope, prefix + 'FargateCodeBuildProject',
             project_name=prefix + 'FargateCodeBuildProject',
@@ -53,7 +59,7 @@ class PipelineCommitToEcr:
                             'commands': f'$(aws ecr get-login --no-include-email --region $REGION)'
                         },
                         'build': {
-                            'commands': 'docker build -t $REPOSITORY_URI:latest .',
+                            'commands': docker_build_command,
                         },
                         'post_build': {
                             'commands': [

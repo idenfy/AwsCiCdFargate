@@ -31,6 +31,7 @@ class EcsPipeline:
             task_def: str,
             app_spec: str,
             build_environment: Dict[str, Any],
+            docker_build_args: Dict[str, str],
             production_target_group,
             deployment_target_group
     ) -> None:
@@ -48,6 +49,7 @@ class EcsPipeline:
         :param app_spec: App specification object defining the ecs service modifications.
         :param build_environment: Environment variables for a build step. You can put here various config
         parameters, urls, secrets, etc.
+        :param docker_build_args: Build arguments for docker build command.
         :param production_target_group: A target group where your blue instances are serving production traffic.
         :param deployment_target_group: A target group where your green instances are ready to serve production traffic.
         """
@@ -93,6 +95,7 @@ class EcsPipeline:
             ecr_repository=self.ecr_repository,
             source_repository=self.source_code_repository,
             build_environment=build_environment,
+            docker_build_args=docker_build_args,
             next_pipeline=self.ecr_to_ecs.ecr_to_ecs_pipeline
         )
 

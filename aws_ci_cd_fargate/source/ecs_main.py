@@ -150,7 +150,7 @@ class Ecs:
                     ],
                     'portMappings': [
                         {
-                            'containerPort': self.ecs_params.container_port
+                            'containerPort': 80
                         }
                     ],
                     'logConfiguration': {
