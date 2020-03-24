@@ -60,6 +60,7 @@ class EcsFargateWithCiCd:
             task_def=self.ecs.create_task_def(),
             app_spec=self.ecs.create_appspec(),
             build_environment=pipeline_params.build_environment,
+            docker_build_args=pipeline_params.docker_build_args,
             production_target_group=self.lb_listener_config.production_target_group,
             deployment_target_group=self.lb_listener_config.deployment_target_group
         )
