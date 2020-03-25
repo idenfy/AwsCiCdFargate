@@ -1,5 +1,9 @@
 # Release history
 
+#### 7.0.0
+Do not allow to specify ecs port. Default to 80.
+This is AWS limitation.
+
 #### 6.0.0
 Instead of taking path config as a parameter, take the 
 whole rule config.
