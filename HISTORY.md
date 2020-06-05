@@ -1,5 +1,8 @@
 # Release history
 
+#### 7.1.0
+Force dependency update 1.44.0 AWS CDK.
+
 #### 7.0.0
 Do not allow to specify ecs port. Default to 80.
 This is AWS limitation.
