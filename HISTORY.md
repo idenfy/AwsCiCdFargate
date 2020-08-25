@@ -1,5 +1,8 @@
 # Release history
 
+#### 7.2.0
+AWS CDK dependency update 1.60.0 - 2.0.0.
+
 #### 7.1.0
 Force dependency update 1.44.0 AWS CDK.
 

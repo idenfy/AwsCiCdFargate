@@ -8,7 +8,7 @@ with open('HISTORY.md') as history_file:
 
 setup(
     name='aws_ci_cd_fargate',
-    version='7.1.0',
+    version='7.2.0',
     license='GNU GENERAL PUBLIC LICENSE Version 3',
     packages=find_packages(exclude=['venv', 'test']),
     description=(
@@ -19,22 +19,22 @@ setup(
     include_package_data=True,
     install_requires=[
         # AWS CDK dependencies.
-        'aws_cdk.core>=1.44.0,<1.50.0',
-        'aws_cdk.aws_iam>=1.44.0,<1.50.0',
-        'aws_cdk.custom_resources>=1.44.0,<1.50.0',
-        'aws_cdk.aws_s3>=1.44.0,<1.50.0',
-        'aws_cdk.aws_certificatemanager>=1.44.0,<1.50.0',
-        'aws_cdk.aws_elasticloadbalancingv2>=1.44.0,<1.50.0',
-        'aws_cdk.aws_ec2>=1.44.0,<1.50.0',
-        'aws_cdk.aws_logs>=1.44.0,<1.50.0',
-        'aws_cdk.aws_ecs>=1.44.0,<1.50.0',
-        'aws_cdk.aws_applicationautoscaling>=1.44.0,<1.50.0',
-        'aws_cdk.aws_codedeploy>=1.44.0,<1.50.0',
-        'aws_cdk.aws_codecommit>=1.44.0,<1.50.0',
-        'aws_cdk.aws_codepipeline>=1.44.0,<1.50.0',
-        'aws_cdk.aws_codepipeline_actions>=1.44.0,<1.50.0',
-        'aws_cdk.aws_ecr>=1.44.0,<1.50.0',
-        'aws_cdk.aws_codebuild>=1.44.0,<1.50.0',
+        'aws_cdk.core>=1.60.0,<2.0.0',
+        'aws_cdk.aws_iam>=1.60.0,<2.0.0',
+        'aws_cdk.custom_resources>=1.60.0,<2.0.0',
+        'aws_cdk.aws_s3>=1.60.0,<2.0.0',
+        'aws_cdk.aws_certificatemanager>=1.60.0,<2.0.0',
+        'aws_cdk.aws_elasticloadbalancingv2>=1.60.0,<2.0.0',
+        'aws_cdk.aws_ec2>=1.60.0,<2.0.0',
+        'aws_cdk.aws_logs>=1.60.0,<2.0.0',
+        'aws_cdk.aws_ecs>=1.60.0,<2.0.0',
+        'aws_cdk.aws_applicationautoscaling>=1.60.0,<2.0.0',
+        'aws_cdk.aws_codedeploy>=1.60.0,<2.0.0',
+        'aws_cdk.aws_codecommit>=1.60.0,<2.0.0',
+        'aws_cdk.aws_codepipeline>=1.60.0,<2.0.0',
+        'aws_cdk.aws_codepipeline_actions>=1.60.0,<2.0.0',
+        'aws_cdk.aws_ecr>=1.60.0,<2.0.0',
+        'aws_cdk.aws_codebuild>=1.60.0,<2.0.0',
 
         # Other dependencies.
         'aws-empty-bucket>=2.0.1,<3.0.0',
