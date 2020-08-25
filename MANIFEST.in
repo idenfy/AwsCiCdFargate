@@ -1,1 +1,2 @@
+include *.md
 recursive-include aws_fargate_sdk *.py
