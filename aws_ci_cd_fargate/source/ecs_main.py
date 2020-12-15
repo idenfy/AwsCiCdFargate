@@ -140,6 +140,7 @@ class Ecs:
         """
         definition = {
             'executionRoleArn': self.task.execution_role.role_arn,
+            'taskRoleArn': self.task.task_role.role_arn,
             'containerDefinitions': [
                 {
                     'name': self.ecs_params.container_name,
